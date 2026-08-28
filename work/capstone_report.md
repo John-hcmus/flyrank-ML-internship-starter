@@ -259,6 +259,39 @@ it wrong):
    (consolidation), and cannot separate seasonality from decline. This is a design boundary, not a
    tunable parameter.
 
+### The four states the lane asks for
+
+The card asks the engine to score pages that are **growing, declining, recovering, or worth review**.
+Those states sit on opposite sides of the decision point, so the queue carries them in two columns
+and never mixes them:
+
+| Column | Built from | What it is for |
+|---|---|---|
+| `decision_state` | prior window only — `slipping` / `steady` / `spiking` | **Actionable.** Visible to an editor at the decision point. Top 200: 124 slipping, 41 steady, 35 spiking |
+| `outcome_state` | outcome window — `declining` / `recovering` / `growing` / `stable` | **Reporting and evaluation only.** Label-side information: never a feature, never predicted |
+
+Two reason codes cover the growth side: `growing_with_demand` (prior window up >20% with ≥500
+impressions) and `spiking_may_revert` (prior window up >50% — the signal audit measured that bucket
+declining at 58.7%, above the 52.4% trough, so a jump is not by itself good news). Both map to a new
+action, `protect_and_watch` (2,344 pages across the queue).
+
+**What the top of the queue actually contained:**
+
+| Slice | declining | recovering | growing | stable |
+|---|---|---|---|---|
+| Top 50 | 88% | 6% | 4% | 2% |
+| Top 200 | 82% | 5% | 4% | 10% |
+| Top 1,000 | 77% | 6% | 3% | 14% |
+| *Whole population* | *62%* | *6%* | *7%* | *25%* |
+
+Read the top row against the last: the queue concentrates decline (62% → 88%) and pushes growth out
+(7% → 4%). It is not merely surfacing large pages.
+
+**Recovery can be reported, not predicted.** Detecting a recovery *before* it happens needs two
+consecutive deltas — a fall, then a rise. This slice exposes only two pre-decision windows, i.e. one
+delta. So the engine can say that 1,063 pages recovered; it cannot say in advance which ones will.
+That is a data-shape limit, not a modelling failure — the warehouse's daily table would lift it.
+
 **Confidence.** Medium at the top of the queue (precision@50 stable at 0.816 ± 0.048 across client
 holdouts), low in the middle (deciles 5–7 sit near the base rate), and out of scope below the
 100-impression floor.

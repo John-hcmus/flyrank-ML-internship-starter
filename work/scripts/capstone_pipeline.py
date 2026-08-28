@@ -353,6 +353,44 @@ def baseline_legal_rule(d: pd.DataFrame) -> np.ndarray:
     return (slipping * demand * (1 + 0.5 * weak_ctr)).to_numpy(dtype=float)
 
 
+# The four states the lane asks about. Two layers, kept strictly apart:
+#
+#   decision_state  — what an editor can see AT the decision point (prior window only).
+#                     Safe to act on. Only three values are observable here, because the
+#                     slice offers exactly TWO visible 30-day windows, i.e. one delta.
+#   outcome_state   — what actually happened in the outcome window. Reporting and
+#                     evaluation ONLY. It is label-side information and must never be a
+#                     feature, nor be read as something the engine predicts.
+#
+# "recovering" needs two consecutive deltas (a fall, then a rise). With one visible delta
+# it cannot be detected before the fact — so this engine can REPORT recovery but cannot
+# PREDICT it. Restoring that would need the warehouse's daily table.
+
+DECISION_STATES = ["slipping", "steady", "spiking"]
+OUTCOME_STATES = ["declining", "recovering", "growing", "stable"]
+
+
+def decision_state(d: pd.DataFrame) -> pd.Series:
+    """Knowable at the decision point: the one delta between first30 and prev30."""
+    prior = d["prior_impr_trend_pct"]
+    return pd.Series(
+        np.where(prior < -20, "slipping", np.where(prior > 20, "spiking", "steady")),
+        index=d.index, name="decision_state")
+
+
+def outcome_state(d: pd.DataFrame) -> pd.Series:
+    """Observed after the fact. Evaluation only — never an input, never a prediction."""
+    prior, out = d["prior_impr_trend_pct"], d["trend_pct"]
+    return pd.Series(
+        np.select(
+            [out < DECLINE_THRESHOLD_PCT,
+             (out > 20) & (prior < -20),
+             (out > 20) & (prior >= -20)],
+            ["declining", "recovering", "growing"],
+            default="stable"),
+        index=d.index, name="outcome_state")
+
+
 def reason_codes(row: pd.Series, ctr_median: float) -> tuple[str, str]:
     """Why this page is in the queue, and what an editor should do with it."""
     codes = []
@@ -368,8 +406,23 @@ def reason_codes(row: pd.Series, ctr_median: float) -> tuple[str, str]:
         codes.append("aging_content")
     if row["has_keyword_data"] == 1 and row["search_volume"] >= 1000:
         codes.append("valuable_keyword")
+    # Growing pages are part of this lane too — the queue should say so rather than
+    # staying silent about them.
+    if row["prior_impr_trend_pct"] > 20 and row["impressions_prev_30d"] >= 500:
+        codes.append("growing_with_demand")
+    # Evidence-backed, not a hunch: the >+50% momentum bucket declines at 58.7%, above
+    # the 52.4% trough of the +20..+50% bucket (w04_signal_audit). A jump is not by
+    # itself good news.
+    if row["prior_impr_trend_pct"] > 50:
+        codes.append("spiking_may_revert")
     if not codes:
         codes.append("model_pattern_only")
+
+    gaining = {"growing_with_demand", "spiking_may_revert"} & set(codes)
+    losing = {"visibility_slipping", "clicks_falling_while_visible",
+              "low_ctr_high_exposure"} & set(codes)
+    if gaining and not losing:
+        return "|".join(codes), "protect_and_watch"
 
     if "visibility_slipping" in codes and "high_demand_page" in codes:
         action = "protect_and_refresh"
@@ -525,6 +578,46 @@ def chart_queue_mix(mix: dict) -> None:
     save(fig, "queue_reason_mix.svg")
 
 
+# Four-state composition. Palette validated with the dataviz skill's checker
+# (chroma floor, CVD separation, normal-vision floor, contrast vs the white plate):
+#   #c2410c / #0b6bcb / #0f8a76 pass all checks; #7b8794 is the deliberate neutral
+#   midpoint for "stable", not a fourth hue. Tritan separation between the blue and
+#   the teal is modest, so every segment is direct-labelled and separated by a 2px
+#   surface gap — identity is never carried by colour alone.
+STATE_COLORS = {
+    "declining": "#c2410c",
+    "recovering": "#0b6bcb",
+    "growing": "#0f8a76",
+    "stable": "#7b8794",
+}
+
+
+def chart_state_mix(decile_mix: list[dict]) -> None:
+    import matplotlib.pyplot as plt
+    fig, ax = plt.subplots(figsize=(7.2, 4.2))
+    deciles = [d["decile"] for d in decile_mix]
+    bottom = np.zeros(len(deciles))
+    for state in ["declining", "stable", "recovering", "growing"]:
+        vals = np.array([d[state] for d in decile_mix])
+        ax.bar(deciles, vals, bottom=bottom, width=0.74, color=STATE_COLORS[state],
+               label=state, linewidth=1.6, edgecolor="white")   # 2px surface gap
+        for x, v, b in zip(deciles, vals, bottom):
+            if v >= 0.07:                      # direct label = the secondary encoding
+                ax.text(x, b + v / 2, f"{v * 100:.0f}", ha="center", va="center",
+                        fontsize=7.5, color="white", fontweight="bold")
+        bottom += vals
+    ax.set_xticks(deciles)
+    ax.set_ylim(0, 1)
+    ax.set_yticks([0, .25, .5, .75, 1])
+    ax.set_yticklabels(["0%", "25%", "50%", "75%", "100%"])
+    _style(ax, "What actually happened to the pages in each risk decile",
+           "Predicted-risk decile (10 = riskiest)", "Share of pages")
+    ax.grid(axis="y", visible=False)
+    ax.legend(frameon=False, fontsize=8, labelcolor=INK, loc="upper center",
+              bbox_to_anchor=(0.5, -0.14), ncol=4)
+    save(fig, "queue_state_mix.svg")
+
+
 # --------------------------------------------------------------------------------------
 # Main
 # --------------------------------------------------------------------------------------
@@ -618,10 +711,13 @@ def main() -> dict:
     q["action"] = [a for _, a in codes_actions]
     q["confidence"] = [confidence_label(p, i)
                        for p, i in zip(q["risk_score"], q["impressions_prev_30d"])]
+    q["decision_state"] = decision_state(q)      # actionable
+    q["outcome_state"] = outcome_state(q)        # evaluation only — clearly separated
     q = q.sort_values("risk_score", ascending=False)
     queue_cols = ["content_id", "risk_score", "action", "reason_codes", "confidence",
-                  "impressions_prev_30d", "prior_impr_trend_pct", "prior_ctr",
-                  "content_age_days_at_decision", "label_declined"]
+                  "decision_state", "impressions_prev_30d", "prior_impr_trend_pct",
+                  "prior_ctr", "content_age_days_at_decision",
+                  "outcome_state", "label_declined"]
     q[queue_cols].to_csv(OUT / "refresh_action_queue.csv", index=False)
 
     top200 = q.head(200)
@@ -638,7 +734,54 @@ def main() -> dict:
         "top200_share_of_all_prev30_impressions": round(
             float(top200["impressions_prev_30d"].sum() / q["impressions_prev_30d"].sum()), 4),
         "action_mix_full_queue": {k: int(v) for k, v in q["action"].value_counts().items()},
+        "top200_decision_state_mix": {k: int(v) for k, v in
+                                      top200["decision_state"].value_counts().items()},
     }
+    # What actually happened to the pages the engine ranks highest — the honest way to
+    # ask "does this queue surface decline, or does it just surface big pages?"
+    states = {
+        "definitions": {
+            "decision_state": {
+                "when": "knowable at the decision point (prior window only) — safe to act on",
+                "slipping": "prior-window impressions fell more than 20%",
+                "spiking": "prior-window impressions rose more than 20%",
+                "steady": "within +/-20%",
+            },
+            "outcome_state": {
+                "when": "observed in the outcome window — REPORTING AND EVALUATION ONLY, "
+                        "never a feature and never predicted by the engine",
+                "declining": f"outcome impressions fell more than {abs(DECLINE_THRESHOLD_PCT):.0f}%",
+                "recovering": "outcome rose more than 20% AFTER a prior-window fall of more than 20%",
+                "growing": "outcome rose more than 20% without a prior-window fall",
+                "stable": "everything else",
+            },
+            "why_recovery_cannot_be_predicted_here":
+                "detecting a recovery before the fact needs two consecutive deltas (a fall "
+                "then a rise); this slice exposes only two pre-decision windows, i.e. one "
+                "delta. The engine reports recovery, it does not predict it.",
+        },
+        "population_mix": {},
+        "top_k_outcome_mix": {},
+        "decile_outcome_mix": [],
+        "decision_state_mix": {},
+    }
+    q_out, q_dec = q["outcome_state"], q["decision_state"]
+    states["population_mix"] = {k: int(v) for k, v in q_out.value_counts().items()}
+    states["decision_state_mix"] = {k: int(v) for k, v in q_dec.value_counts().items()}
+    for k in [50, 200, 500, 1000]:
+        head = q.head(k)["outcome_state"].value_counts()
+        states["top_k_outcome_mix"][str(k)] = {
+            st: {"n": int(head.get(st, 0)), "share": round(float(head.get(st, 0)) / k, 4)}
+            for st in OUTCOME_STATES
+        }
+    q_dec_bins = pd.qcut(q["risk_score"].rank(method="first"), 10, labels=range(1, 11))
+    for dec, grp in q.groupby(q_dec_bins, observed=True):
+        vc = grp["outcome_state"].value_counts()
+        states["decile_outcome_mix"].append({
+            "decile": int(dec), "n": int(len(grp)),
+            **{st: round(float(vc.get(st, 0)) / len(grp), 4) for st in OUTCOME_STATES},
+        })
+
     top20 = [
         {"rank": i + 1,
          "content_id": r.content_id,               # pseudonymous, safe to publish
@@ -646,6 +789,8 @@ def main() -> dict:
          "action": r.action,
          "reason_codes": r.reason_codes,
          "confidence": r.confidence,
+         "decision_state": r.decision_state,
+         "outcome_state": r.outcome_state,
          "impressions_prev_30d": int(r.impressions_prev_30d),
          "prior_impr_trend_pct": round(float(r.prior_impr_trend_pct), 1),
          "prior_ctr_pct": round(float(r.prior_ctr), 2),
@@ -691,6 +836,7 @@ def main() -> dict:
     (OUT / "capstone_importance.json").write_text(json.dumps(importance, indent=2))
     (OUT / "capstone_queue_top20.json").write_text(json.dumps(top20, indent=2))
     (OUT / "capstone_queue_summary.json").write_text(json.dumps(queue_summary, indent=2))
+    (OUT / "capstone_states.json").write_text(json.dumps(states, indent=2))
 
     chart_precision_at_k(reports, base_rate)
     chart_honest_vs_leaky([
@@ -713,6 +859,7 @@ def main() -> dict:
     chart_importance(importance)
     chart_risk_deciles(deciles, base_rate)
     chart_queue_mix(mix)
+    chart_state_mix(states["decile_outcome_mix"])
 
     print(json.dumps({k: {"pr_auc": v["pr_auc"], "p@50": v["precision_at_k"]["50"],
                           "p@200": v["precision_at_k"]["200"], "roc": v["roc_auc"]}
@@ -722,6 +869,9 @@ def main() -> dict:
     print("top coefficients:", [(c["feature"], c["std_coefficient"]) for c in coefs[:8]])
     print("top-20 importance:", [i["feature"] for i in importance[:8]])
     print("queue:", json.dumps(queue_summary, indent=2)[:800])
+    print("states — top-50 outcome mix:",
+          {k: v["share"] for k, v in states["top_k_outcome_mix"]["50"].items()})
+    print("states — population mix:", states["population_mix"])
     return metrics
 
 

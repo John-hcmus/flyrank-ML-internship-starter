@@ -31,6 +31,7 @@ IMP = json.loads((OUT / "capstone_importance.json").read_text())
 COEF = json.loads((OUT / "capstone_coefficients.json").read_text())
 TOP20 = json.loads((OUT / "capstone_queue_top20.json").read_text())
 QSUM = json.loads((OUT / "capstone_queue_summary.json").read_text())
+STATES = json.loads((OUT / "capstone_states.json").read_text())
 
 R = M["reports"]
 BASE = M["base_rate"]
@@ -179,8 +180,21 @@ for r in TOP20[:8]:
         " ".join(f"<span class='code-chip'>{c}</span>" for c in r["reason_codes"].split("|")),
         r["confidence"], f"{r['impressions_prev_30d']:,}", f"{r['prior_impr_trend_pct']:+.0f}%",
     ])
-queue_table = table(["#", "Page (pseudonymous)", "Risk", "Action", "Reason codes", "Confidence",
-                     "Impr. prev 30d", "Prior trend"], queue_rows,
+ORDER = ["declining", "recovering", "growing", "stable"]
+_pop = STATES["population_mix"]
+_tot = sum(_pop.values())
+state_rows = [[f"Top {int(k):,}"] +
+              [f"{STATES['top_k_outcome_mix'][k][st]['share'] * 100:.0f}%" for st in ORDER]
+              for k in ["50", "200", "500", "1000"]]
+state_rows.append(["<em>Whole population</em>"] +
+                  [f"<em>{_pop.get(st, 0) / _tot * 100:.0f}%</em>" for st in ORDER])
+state_table = table(["Slice of the queue"] + ORDER, state_rows,
+                    note="What actually happened to the pages the engine ranked highest. Read the "
+                         "top row against the bottom one: the queue concentrates decline and "
+                         "pushes growth out.")
+
+queue_table = table(["#", "Page (pseudonymous)", "Risk", "Action", "State at decision",
+                     "Reason codes", "Confidence", "Impr. prev 30d", "Prior trend"], queue_rows,
                     note="The first eight rows of an 18,010-row queue. IDs are pseudonyms — no client, "
                          "domain, URL or query appears anywhere in this work.")
 
@@ -206,7 +220,8 @@ recs = [
      f"{QSUM['top200_action_mix'].get('review_metadata_and_intent', 0)} metadata/intent reviews "
      "(clicks falling while impressions hold — a title job, not a rewrite), "
      f"{QSUM['top200_action_mix'].get('protect_and_refresh', 0)} protect-and-refresh, "
-     f"{QSUM['top200_action_mix'].get('monitor', 0)} monitor-only.",
+     f"{QSUM['top200_action_mix'].get('protect_and_watch', 0)} protect-and-watch on pages that are "
+     f"gaining, and {QSUM['top200_action_mix'].get('monitor', 0)} monitor-only.",
      "The thresholds behind the reason codes move — they are policy choices, not constants."),
     ("Keep a human gate in front of every action, and automate nothing.",
      "The model never reads page content, cannot see a sibling page absorbing demand, and cannot "
@@ -678,6 +693,42 @@ BODY = f'''
   <h2><span class="sec-n">06</span>What to do first</h2>
   <p class="sec-sub">Ranked recommendations</p>
   <ol class="recs">{rec_html}</ol>
+
+  <h3>The four states, and which of them the engine can act on</h3>
+  <p>The lane asks for pages scored as growing, declining, recovering or worth review. Those states
+  sit on opposite sides of the decision point, so the queue carries them in two separate columns and
+  never mixes them:</p>
+  <ul class="plain">
+    <li><strong><code>decision_state</code> — actionable.</strong> Built from the prior window only:
+    <code>slipping</code>, <code>steady</code>, <code>spiking</code>. In the top 200:
+    {QSUM['top200_decision_state_mix'].get('slipping', 0)} slipping,
+    {QSUM['top200_decision_state_mix'].get('steady', 0)} steady,
+    {QSUM['top200_decision_state_mix'].get('spiking', 0)} spiking.</li>
+    <li><strong><code>outcome_state</code> — reporting only.</strong> What actually happened:
+    <code>declining</code>, <code>recovering</code>, <code>growing</code>, <code>stable</code>. This
+    is label-side information, so it is never a feature and never something the engine claims to
+    predict.</li>
+  </ul>
+
+  <div class="callout">
+    <p class="eyebrow">Why recovery can be reported but not predicted</p>
+    <p>Spotting a recovery <em>before</em> it happens needs two consecutive deltas — a fall, then a
+    rise. This slice exposes only two pre-decision windows, which is a single delta. So the engine
+    can tell you that {_pop.get('recovering', 0):,} pages recovered, and it cannot tell you in
+    advance which ones will. Fixing that needs the warehouse's daily table, not a better model.</p>
+  </div>
+
+  {state_table}
+
+  <figure>
+    <div class="plate">{fig("queue_state_mix.svg")}</div>
+    <figcaption><b>The ranking separates decline from growth, gradually.</b> Real decline climbs from
+    {STATES['decile_outcome_mix'][0]['declining'] * 100:.0f}% in the safest decile to
+    {STATES['decile_outcome_mix'][9]['declining'] * 100:.0f}% in the riskiest, while growing pages
+    fall from {STATES['decile_outcome_mix'][0]['growing'] * 100:.0f}% to
+    {STATES['decile_outcome_mix'][9]['growing'] * 100:.0f}%. The engine is not merely surfacing big
+    pages — though the slope is gentle, which is the same "no sharp boundary" caveat as before.</figcaption>
+  </figure>
 
   <h3>The queue itself</h3>
   {queue_table}
