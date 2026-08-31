@@ -46,6 +46,14 @@ W4 = R["Week-4 rule (window-contaminated)"]
 RAND = R["Random ordering"]
 
 REPO_URL = "https://github.com/John-hcmus/flyrank-ML-internship-starter"
+
+# The public address, analytics code and badge link live in one place so that
+# going live on a new domain is one command; see work/scripts/configure_site.py.
+SITE = json.loads((REPO / "work" / "portfolio" / "site.json").read_text())
+SITE_URL = SITE["base_url"].rstrip("/")
+GOATCOUNTER = SITE.get("goatcounter_code", "")
+BADGE_VERIFY = SITE.get("badge_verify_url", "") or "#badge-not-configured"
+GSV = SITE.get("google_site_verification", "")
 NB = f"{REPO_URL}/blob/main/work/notebooks"
 
 
@@ -433,6 +441,11 @@ pre{background:var(--surface); border:1px solid var(--rule); border-radius:5px; 
 .link-card span{display:block; font-size:13px; color:var(--muted); margin-top:3px}
 footer{margin-top:72px; padding-top:26px; border-top:1px solid var(--rule); color:var(--muted); font-size:14.5px}
 footer strong{color:var(--ink-2)}
+.grad-badge-wrap{margin-top:22px}
+.grad-badge{display:inline-block; border-bottom:0; line-height:0; border-radius:10px}
+.grad-badge img{width:238px; height:auto; display:block}
+.grad-badge:focus-visible{outline:2px solid var(--signal); outline-offset:3px}
+.grad-badge-note{margin:9px 0 0; font-size:13px; color:var(--muted)}
 @media (max-width:620px){
   body{font-size:16px}
   .wrap{padding:0 18px 72px}
@@ -796,6 +809,14 @@ python work/scripts/build_paper.py         # rebuilds this page</pre>
     <a href="https://flyrank.ai" target="_blank" rel="noopener">FlyRank ML Internship dataset</a>.</p>
     <p>Decision-support research on observational data. No causal claim, no algorithmic claim, no
     client-identifying detail.</p>
+
+    <div class="grad-badge-wrap">
+      <a class="grad-badge" href="{BADGE_VERIFY}" target="_blank" rel="noopener">
+        <img src="assets/flyrank-graduate-badge.svg" width="264" height="64"
+             alt="FlyRank AI Fluency Internship — Graduate, 2026. Opens the verification page.">
+      </a>
+      <p class="grad-badge-note">Graduate of the FlyRank AI Fluency Internship — verify this credential.</p>
+    </div>
   </footer>
 </section>
 </div>
@@ -808,6 +829,24 @@ FONTS = ('<link rel="preconnect" href="https://fonts.googleapis.com">'
          'family=IBM+Plex+Sans:wght@400;500;600&'
          'family=IBM+Plex+Serif:wght@400;600&display=swap">')
 
+# GoatCounter: no cookies, no personal data, no consent banner required. While the
+# site code is empty this loads nothing at all.
+ANALYTICS = f'''
+<!-- Analytics — GoatCounter: no cookies, no personal data, no consent banner required.
+     The site code is set from work/portfolio/site.json by work/scripts/configure_site.py;
+     while it is empty this loads nothing at all. -->
+<script data-goatcounter="{f"https://{GOATCOUNTER}.goatcounter.com/count" if GOATCOUNTER else ""}">
+  (function () {{
+    var endpoint = document.currentScript.getAttribute("data-goatcounter");
+    if (!endpoint) return;
+    var s = document.createElement("script");
+    s.async = true;
+    s.src = "https://gc.zgo.at/count.js";
+    s.setAttribute("data-goatcounter", endpoint);
+    document.head.appendChild(s);
+  }})();
+</script>'''
+
 DESCRIPTION = ("Ranking 18,010 pages by 30-day search-decline risk on real anonymized FlyRank data — "
                "and finding that the obvious baseline rule could not rank at all.")
 
@@ -815,16 +854,35 @@ full = f'''<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
+{f'<meta name="google-site-verification" content="{GSV}">' if GSV else ""}
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{TITLE}</title>
 <meta name="description" content="{DESCRIPTION}">
 <meta property="og:title" content="Which page should an editor open first?">
 <meta property="og:description" content="{DESCRIPTION}">
 <meta property="og:type" content="article">
+<meta property="og:site_name" content="Nguyễn Hoàng Tú">
+<meta property="og:url" content="{SITE_URL}/">
+<meta property="og:image" content="{SITE_URL}/og-paper.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Which page should an editor open first? 18,010 pages ranked out-of-fold, 0.88 precision@50 against a 0.74 rule baseline.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Which page should an editor open first?">
+<meta name="twitter:description" content="{DESCRIPTION}">
+<meta name="twitter:image" content="{SITE_URL}/og-paper.png">
+<link rel="canonical" href="{SITE_URL}/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="author" content="Nguyễn Hoàng Tú">
+<meta name="theme-color" content="#0b5fb0">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
 {FONTS}
 <style>{CSS}</style>
 </head>
-<body>{BODY}</body>
+<body>{BODY}
+{ANALYTICS}
+</body>
 </html>
 '''
 

@@ -9,6 +9,9 @@ ids = set(re.findall(r'\sid="([^"]+)"', html))
 for h in anchors:
     if h == "#":
         issues.append(f"DEAD LINK: href='#'")
+    elif h == "#badge-not-configured":
+        # the graduate badge's placeholder; audit_launch.py owns this check
+        issues.append("BADGE: verify URL not set — run configure_site.py --verify <url>")
     elif h.startswith("#") and h[1:] not in ids:
         issues.append(f"BROKEN ANCHOR: {h} has no matching id")
 print(f"links: {len(anchors)} total, {len(set(a for a in anchors if a.startswith('http')))} external")

@@ -389,6 +389,11 @@
       padding: 2rem 0 3rem; border-top: 1px solid var(--border);
       font-size: 0.78rem; color: var(--text-muted); font-family: var(--mono);
     }
+    .grad-badge-wrap { margin-top: 1.25rem; }
+    .grad-badge { display: inline-block; line-height: 0; border-radius: 10px; }
+    .grad-badge img { width: 238px; height: auto; display: block; }
+    .grad-badge:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .grad-badge-note { margin: 0.55rem 0 0; font-size: 0.72rem; color: var(--text-muted); }
 
     /* ── Responsive ── */
     @media (max-width: 620px) {
@@ -866,6 +871,14 @@
         </a>
       </div>
       <p>&copy; 2026 Nguyễn Hoàng Tú · Built and deployed from a single repo.</p>
+
+      <div class="grad-badge-wrap">
+        <a class="grad-badge" href="#badge-not-configured" target="_blank" rel="noopener">
+          <img src="../assets/flyrank-graduate-badge.svg" width="264" height="64"
+               alt="FlyRank AI Fluency Internship — Graduate, 2026. Opens the verification page.">
+        </a>
+        <p class="grad-badge-note">Graduate of the FlyRank AI Fluency Internship — verify this credential.</p>
+      </div>
     </footer>
 
   </main>
@@ -1005,6 +1018,21 @@
         });
     });
   })();
+  </script>
+
+  <!-- Analytics — GoatCounter: no cookies, no personal data, no consent banner required.
+       The site code is set from work/portfolio/site.json by work/scripts/configure_site.py;
+       while it is empty this loads nothing at all. -->
+  <script data-goatcounter="">
+    (function () {
+      var endpoint = document.currentScript.getAttribute("data-goatcounter");
+      if (!endpoint) return;
+      var s = document.createElement("script");
+      s.async = true;
+      s.src = "https://gc.zgo.at/count.js";
+      s.setAttribute("data-goatcounter", endpoint);
+      document.head.appendChild(s);
+    })();
   </script>
 </body>
 </html>
