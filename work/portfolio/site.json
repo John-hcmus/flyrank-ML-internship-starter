@@ -1,0 +1,8 @@
+{
+  "_comment": "Single source of truth for the public site. Change a value here, then run: python3 work/scripts/configure_site.py",
+  "base_url": "https://john-hcmus.github.io/flyrank-ML-internship-starter",
+  "base_url_target": "https://hoangtu.is-a.dev",
+  "goatcounter_code": "",
+  "badge_verify_url": "",
+  "google_site_verification": "RoBPPTMe-SpFcYKFTp-OJqG3KOfBKTTpeFSvSFcufJE"
+}

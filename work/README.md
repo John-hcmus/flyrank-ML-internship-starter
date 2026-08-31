@@ -67,3 +67,35 @@ python work/scripts/build_paper.py         # rebuilds docs/index.html
 ```
 ML-12 lives in your capstone notebook's closing markdown cells — it's the smallest card and
 the easiest to forget, which is exactly why it has a row here.
+
+---
+
+## W9 — Plant your flag: domain, analytics, badge
+
+The site is two pages served from `docs/` by GitHub Pages: the paper at the root and the
+portfolio at `/portfolio/`. Three values that used to be scattered through the HTML now
+live in one file, **`portfolio/site.json`**, and one script stamps them everywhere:
+
+```bash
+python3 work/scripts/configure_site.py --check     # what would change
+python3 work/scripts/configure_site.py --go-live   # switch to the custom domain
+python3 work/scripts/audit_launch.py               # did it work
+```
+
+| Piece | State |
+|---|---|
+| Custom domain | Wired end to end, still canonical on `github.io` until DNS resolves — see `portfolio/GO-LIVE.md` |
+| Analytics (GoatCounter) | Installed on both pages; loads nothing until the site code is set |
+| Share preview / favicon / titles | Done on both pages; the paper's card is `docs/og-paper.png` |
+| Graduate badge | Drawn and in both footers; link is a placeholder until the verification URL is set |
+
+Two things worth knowing about the build:
+
+- `docs/index.html` is **generated** by `build_paper.py`. Everything above went into the
+  generator, not just the output, so a rebuild no longer drops it. It used to: the
+  Search Console tag added by hand in `ca84fe3` would have vanished on the next build,
+  and now comes from `site.json` instead.
+- The committed page had drifted from the committed figures — it was built from an
+  earlier `capstone_pipeline.py` run, so every embedded SVG carried a stale timestamp and
+  stale element IDs. Rebuilding resynced them. The charts are unchanged; the diff is
+  large because the figures are inlined as base64.
