@@ -60,6 +60,72 @@ for name, fg, bg, need in pairs:
     if not ok:
         issues.append(f"CONTRAST: {name} is {r:.2f}:1, needs {need}:1")
 
+# --- SEO / meta ---
+import json as _json, struct as _struct
+print("\nSEO / meta:")
+
+def meta(attr, val):
+    m = re.search(rf'<meta\s+{attr}="{re.escape(val)}"\s+content="([^"]*)"', html)
+    return m.group(1) if m else None
+
+title = re.search(r"<title>(.*?)</title>", html, re.S)
+title = title.group(1).strip() if title else ""
+desc = meta("name", "description") or ""
+
+checks = [
+    ("<title> present",        bool(title)),
+    ("title <= 60 chars",      0 < len(title) <= 60),
+    ("description present",    bool(desc)),
+    ("description 50-160",     50 <= len(desc) <= 160),
+    ("canonical URL",          'rel="canonical"' in html),
+    ("robots directive",       bool(meta("name", "robots"))),
+    ("og:title",               bool(meta("property", "og:title"))),
+    ("og:description",         bool(meta("property", "og:description"))),
+    ("og:url",                 bool(meta("property", "og:url"))),
+    ("og:image (absolute)",    (meta("property", "og:image") or "").startswith("https://")),
+    ("og:image:alt",           bool(meta("property", "og:image:alt"))),
+    ("twitter:card",           meta("name", "twitter:card") == "summary_large_image"),
+    ("favicon linked",         'rel="icon"' in html),
+    ("lang attribute",         '<html lang=' in html),
+    ("viewport meta",          'name="viewport"' in html),
+    ("exactly one <h1>",       len(re.findall(r"<h1[\s>]", html)) == 1),
+]
+
+ld = re.search(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
+if ld:
+    try:
+        _json.loads(ld.group(1))
+        checks.append(("JSON-LD parses", True))
+    except Exception as e:
+        checks.append((f"JSON-LD parses ({e})", False))
+else:
+    checks.append(("JSON-LD present", False))
+
+for name, good in checks:
+    print(f"  {'ok  ' if good else 'FAIL'} {name}")
+    if not good:
+        issues.append(f"SEO: {name}")
+
+print(f"  info title is {len(title)} chars, description {len(desc)} chars")
+
+# --- assets referenced by the page must exist, at the right size ---
+print("\nassets:")
+base = pathlib.Path("docs/portfolio")
+for f in ["favicon.svg", "og.png"]:
+    exists = (base / f).exists()
+    print(f"  {'ok  ' if exists else 'FAIL'} {f} present")
+    if not exists:
+        issues.append(f"ASSET: {f} missing")
+
+og = base / "og.png"
+if og.exists():
+    raw = og.read_bytes()
+    w, h = _struct.unpack(">II", raw[16:24])          # PNG IHDR
+    good = (w, h) == (1200, 630)
+    print(f"  {'ok  ' if good else 'FAIL'} og.png is {w}x{h} (want 1200x630), {len(raw)/1024:.0f} KB")
+    if not good:
+        issues.append("ASSET: og.png wrong dimensions")
+
 print("\n" + ("=" * 50))
 if issues:
     print(f"{len(issues)} ISSUE(S):")
