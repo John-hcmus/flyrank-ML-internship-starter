@@ -1,120 +1,93 @@
 # How the contact form works
 
-My portfolio used to be a page that only talked. Now it has exactly one thing that
-*does* something: a contact form. You type a message, press send, and it lands in my
-Gmail inbox. This is the short explanation of what sits behind that.
+My portfolio used to be a page that only talked about my work. Now one thing on it
+actually does something: a contact form. You type a message, hit send, and it shows up
+in my Gmail. This is what happens in between.
 
----
+## What a backend is
 
-## What a backend actually is
+My site is static. GitHub Pages takes the files sitting in my repo and hands them to
+whoever asks for them. That is the whole job. It cannot send an email — serving a file
+and sending an email are different jobs, and nothing in my repo is running any code.
 
-My portfolio is a **static site**. GitHub Pages takes the files in my repo and hands
-them to whoever asks. That is the whole job. It reads files out loud; it never thinks.
-Ask it to send an email and it has no idea what you mean, because serving a file and
-sending mail are completely different jobs.
+A backend is a computer that is always on, sitting at a known address, waiting to be
+asked to do something. It can do what a browser cannot: send email, write to a database,
+take a payment.
 
-A **backend** is the other half: someone else's computer, switched on all the time,
-sitting at a known address and waiting to be asked to do things. It can do the things a
-browser cannot be trusted with — keep a secret, write to a database, charge a card,
-send an email.
+It has to be a *separate* computer because of secrets. Sending email needs a credential,
+and anything I put in the page is public — View Source shows it, the network tab shows
+every request. A secret in the browser is not a secret. So the credential has to live on
+a machine the visitor cannot read.
 
-The reason it has to be a *separate* computer comes down to secrets. Sending mail
-requires a credential, and anything I ship to a browser is public: "View source" is one
-keystroke away, and the network tab shows every request. A secret in the browser is not
-a secret. So the credential has to live somewhere the visitor can never read, which
-means a machine I control rather than a page I hand out.
+I did not build that machine. I rented one. **Web3Forms** does exactly one thing: take a
+form submission and turn it into an email. Free up to 250 messages a month. Building my
+own would have meant a server, a mail provider and a monthly bill, to end up in the same
+place.
 
-I did not build that machine. I rented one. **Web3Forms** runs a backend whose only
-trick is turning a form submission into an email, and the free tier covers 250
-messages a month — far more than a portfolio will ever see. Writing my own would have
-meant a server, a mail provider, and a bill, to end up in the same place.
+## What happens when you hit Send
 
----
+1. Your browser asks GitHub Pages for my page. It sends back `index.html`. Nobody has
+   computed anything yet.
+2. You fill in name, email and message, and press the button.
+3. **My JavaScript checks the three fields first.** Missing name, a broken email address,
+   a message under ten characters — it says so under that box and stops. Nothing leaves
+   your browser. This is not security; it just saves you a round trip to find out you
+   made a typo.
+4. If everything looks fine, the browser packs the fields into JSON and POSTs them to
+   `api.web3forms.com`, along with my access key. The key tells Web3Forms whose mailbox
+   this is for.
+5. **Web3Forms does the part I can't.** It checks the key, checks the honeypot (below),
+   writes an email and sends it.
+6. It answers `{"success": true}`. My JavaScript turns that into the green line on the
+   page. If it answers with an error instead, I show the reason the server actually gave,
+   not a generic "something went wrong".
+7. The email lands in my inbox with the sender's address set as reply-to, so I just hit
+   reply.
 
-## What my feature does
-
-One form, three boxes: name, email, message. Press **Send message** and:
-
-- if something is missing or malformed, it says so under that exact box and stops —
-  nothing leaves the browser;
-- if everything checks out, the button greys out, the status line says it is sending,
-  and a moment later it turns green: *"Thanks — your message is on its way."*
-
-The page never reloads and you never get bounced to some other site's "thank you"
-screen. Meanwhile the message is in my inbox, with the sender's address set as the
-reply-to, so I hit reply and it goes straight back to them.
-
----
-
-## How the data flows
+The part worth noticing: **my page never touches my email account.** It only knows how to
+say "here is a message, please deliver it."
 
 ```
- 1. VISITOR'S BROWSER          2. GITHUB PAGES              3. WEB3FORMS
-    ────────────────             ──────────────                ──────────
-    opens my portfolio   ──────► "here is index.html"
-                         ◄──────  (a file. that's all.)
-
-    types name, email,
-    message; hits Send
-
-    my JavaScript checks
-    the three fields
-      ↓ all good?
-
-    packs them into JSON
-    and POSTs it        ──────────────────────────────────►  checks my access key
-                                                             checks the honeypot
-                                                             writes an email
-                                                                    │
-                                                                    ▼
-                        ◄────────────────────────────────── {"success": true}     4. MY GMAIL
-    shows the green                                                                ──────────
-    "on its way" line                                        sends the mail ──────► new message
-                                                                                    reply-to =
-                                                                                    the visitor
+BROWSER              GITHUB PAGES          WEB3FORMS            MY GMAIL
+   |  asks for page      |                     |                    |
+   | ------------------> |                     |                    |
+   | <------------------ |  index.html         |                    |
+   |                     |  (a file, no code)  |                    |
+   |                                           |                    |
+   |  checks the 3 fields itself                |                    |
+   |  POSTs JSON + access key ----------------> |                    |
+   |                                           | checks key         |
+   |                                           | checks honeypot    |
+   |                                           | writes the email   |
+   |                                           | -----------------> | new message
+   | <---------------------------------------- |                    | reply-to =
+   |  {"success": true}  ->  green line        |                    | the visitor
 ```
 
-Step by step, in words:
+## The part that confused me
 
-1. **The browser gets a file.** GitHub Pages sends `index.html`. No computing has
-   happened yet by anyone.
-2. **The browser does the checking.** My JavaScript makes sure there is a name, a
-   plausible email, and a message of at least ten characters. This is a courtesy to the
-   visitor, not security — it catches typos instantly instead of after a round trip.
-3. **The browser sends the data.** It bundles the fields into JSON and `POST`s them to
-   `api.web3forms.com/submit`, along with my access key, which says *which mailbox* this
-   belongs to.
-4. **The backend does the part I can't.** Web3Forms checks the key is real, glances at
-   the honeypot (below), composes an email and sends it.
-5. **My inbox gets it.** With the visitor's address as reply-to.
-6. **The browser hears back.** Web3Forms answers `{"success": true}`, and my JavaScript
-   turns that into the green line. If it answers with an error instead, I show the
-   server's actual reason rather than a generic shrug.
+The access key sits in my HTML where anyone can read it. That felt wrong until I worked
+out what it actually is: **an address, not a password.** It says "put this in Tu's
+mailbox." It cannot read my mail, cannot send email as me, cannot touch my account. The
+worst thing a stranger can do with it is send me a message — which is the entire point of
+the form. The credential that *would* be dangerous never leaves Web3Forms' servers.
 
-The important thing about that picture: **my page never touches my email account.** It
-only knows how to say "here is a message, please deliver it." The credentials that can
-actually send mail live on Web3Forms' servers, where no visitor can read them.
+I got caught by this in practice too. The placeholder string appears twice in my file:
+once as the key itself, and once as a constant in the JavaScript that checks whether the
+key has been set yet. The first time I ran my tests I had replaced both, so the page
+decided it was still unconfigured and refused to send anything. Every test failed. The
+fix was to replace only the first one — and it taught me that the check and the thing
+being checked are two different pieces, even when they look identical.
 
----
+## The honeypot
 
-## Two details I had to think about
-
-**The access key is public, and that is fine.** It is sitting in my HTML where anyone
-can read it. That felt wrong until I worked out what it actually is: an *address*, not a
-password. It says "put this in Tu's mailbox." It cannot read my mail, cannot send as me,
-cannot touch my account. The worst someone can do with it is send me messages — which is
-what the form is for. The credential that *would* be dangerous never leaves Web3Forms.
-
-**Bots fill in forms.** There is a fourth input on the form that you cannot see: it is
-parked off the left edge of the screen, fully transparent, and skipped by the tab key. No
-person will ever fill it in. Automated spam scripts read the HTML rather than look at the
-page, so they see a field and fill it. If it comes back filled, the submission is a bot
-and gets dropped. It is a tripwire that only something non-human can trigger.
-
----
+There is a fourth input on the form that you cannot see. It sits off the left edge of the
+screen, it is transparent, and the tab key skips over it. No person will ever type in it.
+Spam bots read the HTML instead of looking at the page, so they see a field and fill it
+in. If it comes back filled, the message is from a bot and gets dropped. It is a tripwire
+only a machine can trip.
 
 ## What it cost
 
-Nothing. GitHub Pages is free, Web3Forms' free tier is 250 submissions a month, and
-there is no card on file anywhere. The only thing I spend is the minute it takes to
-reply.
+Nothing. GitHub Pages is free, Web3Forms is free up to 250 messages a month, and there is
+no card on file anywhere. The only thing I spend is the minute it takes to reply.

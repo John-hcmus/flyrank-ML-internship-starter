@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tu Nguyen — AI Engineer & Researcher</title>
-  <meta name="description" content="AI engineer and researcher building deep learning systems for time series, scientific ML, and real-world signal processing.">
+  <title>Nguyễn Hoàng Tú — Machine Learning / AI Engineer Intern</title>
+  <meta name="description" content="Mathematics and Computer Science undergraduate targeting Machine Learning / AI Engineer internships. Ranking systems, time-series models, leakage audits — with a published paper and reproducible code.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -16,12 +16,21 @@
       --surface: #ffffff;
       --text: #18181b;
       --text-secondary: #52525b;
+      --text-muted: #71717a;
       --accent: #0369a1;
+      --accent-deep: #075985;
       --accent-light: #e0f2fe;
       --border: #e4e4e7;
-      --mono: 'Space Grotesk', monospace;
-      --body: 'Inter', -apple-system, sans-serif;
-      --max-w: 680px;
+      --border-strong: #d4d4d8;
+      --ok: #15803d;
+      /* Inter sits second on purpose: it has full Vietnamese coverage, so if
+         Space Grotesk lacks a glyph like 'ễ' the browser substitutes that one
+         character from Inter instead of from a generic monospace face, which
+         misplaces the tone mark. Space Grotesk is not monospace, so a
+         monospace fallback was wrong here regardless. */
+      --mono: 'Space Grotesk', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      --body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --max-w: 720px;
     }
 
     html { font-size: 16px; scroll-behavior: smooth; }
@@ -34,395 +43,692 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    .wrap {
-      max-width: var(--max-w);
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
+    .wrap { max-width: var(--max-w); margin: 0 auto; padding: 0 1.5rem; }
 
-    /* ── Header / Hero ── */
-    header {
-      padding: 4rem 0 3rem;
+    a { color: var(--accent); }
+
+    .skip {
+      position: absolute; left: -9999px;
+      background: var(--accent); color: #fff;
+      padding: 0.5rem 1rem; z-index: 100;
+    }
+    .skip:focus { left: 0; top: 0; }
+
+    /* ── Nav ── */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      background: rgba(250, 250, 249, 0.92);
+      backdrop-filter: blur(8px);
       border-bottom: 1px solid var(--border);
     }
 
-    header h1 {
+    .nav-inner {
+      max-width: var(--max-w); margin: 0 auto;
+      padding: 0.7rem 1.5rem;
+      display: flex; align-items: baseline; justify-content: space-between; gap: 1rem;
+    }
+
+    .nav-name { font-family: var(--mono); font-weight: 600; font-size: 0.85rem; }
+
+    .nav-links { display: flex; gap: 1.1rem; }
+
+    .nav-links a {
+      font-family: var(--mono); font-size: 0.78rem; font-weight: 500;
+      color: var(--text-secondary); text-decoration: none;
+    }
+    .nav-links a:hover, .nav-links a:focus-visible { color: var(--accent); }
+
+    /* ── Hero ── */
+    header.hero { padding: 3.5rem 0 2.75rem; }
+
+    header.hero h1 {
       font-family: var(--mono);
-      font-size: 2.25rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-      line-height: 1.15;
-      margin-bottom: 0.75rem;
+      font-size: 2.35rem; font-weight: 700;
+      letter-spacing: -0.03em; line-height: 1.1;
+      margin-bottom: 0.6rem;
     }
 
-    header .tagline {
+    .role {
       font-family: var(--mono);
-      font-size: 1.05rem;
-      font-weight: 500;
-      color: var(--accent);
-      margin-bottom: 1.25rem;
+      font-size: 1.05rem; font-weight: 600;
+      color: var(--accent); letter-spacing: -0.01em;
+      margin-bottom: 1.1rem;
     }
 
-    header p {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      max-width: 540px;
-    }
+    .value-prop { color: var(--text-secondary); font-size: 0.95rem; max-width: 34rem; }
 
-    .links-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-    }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.6rem; }
 
-    .links-row a {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      font-family: var(--mono);
-      font-size: 0.82rem;
-      font-weight: 500;
-      color: var(--accent);
-      text-decoration: none;
-      padding: 0.4rem 0.85rem;
+    .btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-family: var(--mono); font-size: 0.85rem; font-weight: 500;
+      text-decoration: none; padding: 0.55rem 1.15rem;
       border: 1px solid var(--accent);
       transition: background 0.15s, color 0.15s;
     }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover, .btn-primary:focus-visible { background: var(--accent-deep); border-color: var(--accent-deep); outline: none; }
+    .btn-secondary { background: transparent; color: var(--accent); }
+    .btn-secondary:hover, .btn-secondary:focus-visible { background: var(--accent); color: #fff; outline: none; }
+    .btn:focus-visible { box-shadow: 0 0 0 3px var(--accent-light); }
 
-    .links-row a:hover,
-    .links-row a:focus-visible {
-      background: var(--accent);
-      color: #fff;
-      outline: none;
+    .hero-links {
+      margin-top: 1rem; font-size: 0.82rem;
+      font-family: var(--mono); color: var(--text-muted);
+      display: flex; gap: 0.6rem; flex-wrap: wrap;
     }
+    .hero-links a { text-decoration: none; }
+    .hero-links a:hover { text-decoration: underline; }
 
     /* ── Sections ── */
-    section { padding: 2.5rem 0; }
-    section + section { border-top: 1px solid var(--border); }
+    section { padding: 2.75rem 0; border-top: 1px solid var(--border); }
 
     section h2 {
       font-family: var(--mono);
-      font-size: 1.15rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
+      font-size: 0.8rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.09em;
+      color: var(--text-muted);
+      margin-bottom: 1.4rem;
+    }
+
+    .lede { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; max-width: 36rem; }
+
+    /* ── Evidence ── */
+    .ev-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; background: var(--border);
+      border: 1px solid var(--border);
+    }
+
+    .ev { background: var(--surface); padding: 1.1rem 1.15rem; }
+
+    .ev-num {
+      font-family: var(--mono); font-size: 1.5rem; font-weight: 700;
+      letter-spacing: -0.02em; line-height: 1.15; color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+
+    .ev-lab { font-size: 0.8rem; line-height: 1.55; color: var(--text-secondary); }
+
+    .ev-callout {
+      margin-top: 1.5rem; padding: 1rem 1.15rem;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-light);
+      font-size: 0.88rem; line-height: 1.65; color: #0c4a6e;
+    }
+    .ev-callout strong { font-weight: 600; }
+
+    /* ── Projects ── */
+    .project {
+      border-left: 3px solid var(--border-strong);
+      padding: 0 0 0 1.15rem;
+      margin-bottom: 2.5rem;
+    }
+    .project.flagship { border-left-color: var(--accent); }
+
+    .project:last-child { margin-bottom: 0; }
+
+    .p-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.5rem; margin-bottom: 0.15rem; }
+
+    .project h3 {
+      font-family: var(--mono); font-size: 1.02rem; font-weight: 600;
       letter-spacing: -0.01em;
     }
 
-    /* ── Project Cards ── */
-    .project {
-      margin-bottom: 1.75rem;
+    .p-status {
+      font-family: var(--mono); font-size: 0.66rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 0.1rem 0.45rem; border: 1px solid var(--border-strong);
+      color: var(--text-muted);
+    }
+    .p-status.live { color: var(--ok); border-color: #bbf7d0; background: #f0fdf4; }
+
+    .p-problem {
+      font-size: 0.9rem; color: var(--text); margin: 0.5rem 0 0.9rem;
     }
 
-    .project h3 {
-      font-family: var(--mono);
-      font-size: 0.95rem;
-      font-weight: 600;
-      margin-bottom: 0.35rem;
+    .p-row { display: grid; grid-template-columns: 7.5rem 1fr; gap: 0.35rem 1rem; margin-bottom: 0.7rem; }
+
+    .p-label {
+      font-family: var(--mono); font-size: 0.7rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-muted); padding-top: 0.18rem;
     }
 
-    .project .meta {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      font-family: var(--mono);
-      margin-bottom: 0.5rem;
+    .p-body { font-size: 0.87rem; color: var(--text-secondary); line-height: 1.65; }
+    .p-body strong { color: var(--text); font-weight: 600; }
+    .p-body ul { list-style: none; }
+    .p-body li { position: relative; padding-left: 0.9rem; }
+    .p-body li::before { content: "—"; position: absolute; left: 0; color: var(--text-muted); }
+
+    .metric { font-family: var(--mono); font-weight: 600; color: var(--text); }
+
+    .p-stack {
+      font-family: var(--mono); font-size: 0.75rem; color: var(--text-muted);
+      margin-top: 0.9rem;
     }
 
-    .project p {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      line-height: 1.65;
+    .p-links { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 0.8rem; }
+
+    .p-links a {
+      font-family: var(--mono); font-size: 0.75rem; font-weight: 500;
+      text-decoration: none; color: var(--accent);
+      padding: 0.28rem 0.7rem; border: 1px solid var(--border-strong);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .p-links a:hover, .p-links a:focus-visible {
+      border-color: var(--accent); background: var(--accent-light); outline: none;
     }
 
-    .tag {
-      display: inline-block;
-      font-family: var(--mono);
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: var(--accent);
-      background: var(--accent-light);
-      padding: 0.15rem 0.5rem;
-      margin-right: 0.3rem;
-      margin-top: 0.5rem;
+    /* ── How I work ── */
+    .steps { counter-reset: step; display: grid; gap: 0.6rem; }
+
+    .step {
+      counter-increment: step;
+      position: relative; padding-left: 2.1rem;
+      font-size: 0.88rem; color: var(--text-secondary); line-height: 1.6;
     }
+    .step::before {
+      content: counter(step);
+      position: absolute; left: 0; top: 0.05rem;
+      font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+      color: var(--accent); background: var(--accent-light);
+      width: 1.45rem; height: 1.45rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step strong { color: var(--text); font-weight: 600; }
 
     /* ── Skills ── */
-    .skills-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.35rem 2rem;
-      font-size: 0.88rem;
-      color: var(--text-secondary);
+    .skill-group { margin-bottom: 1.1rem; }
+    .skill-group:last-child { margin-bottom: 0; }
+
+    .skill-name {
+      font-family: var(--mono); font-size: 0.78rem; font-weight: 600;
+      margin-bottom: 0.2rem;
     }
 
-    .skills-grid span {
-      padding: 0.25rem 0;
-      border-bottom: 1px solid var(--border);
-    }
+    .skill-items { font-size: 0.86rem; color: var(--text-secondary); }
 
-    /* ── Writing placeholder ── */
-    .post-placeholder {
-      padding: 1.5rem;
-      border: 1px dashed var(--border);
-      color: var(--text-secondary);
-      font-size: 0.88rem;
-      text-align: center;
+    .skill-proof {
+      font-size: 0.78rem; color: var(--text-muted); margin-top: 0.15rem;
     }
+    .skill-proof a { color: var(--text-muted); text-decoration: underline; text-underline-offset: 2px; }
+    .skill-proof a:hover { color: var(--accent); }
 
+    /* ── Education ── */
+    .edu-role { font-family: var(--mono); font-size: 0.9rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .edu-note { font-size: 0.88rem; color: var(--text-secondary); }
 
     /* ── Contact form ── */
-    .contact-intro {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      margin-bottom: 1.5rem;
-      max-width: 540px;
-    }
+    .contact-intro { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem; max-width: 34rem; }
 
-    .contact-form { max-width: 520px; }
+    .contact-form { max-width: 32rem; }
 
     .field { margin-bottom: 1.1rem; }
 
     .field label {
-      display: block;
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.01em;
-      margin-bottom: 0.35rem;
+      display: block; font-family: var(--mono);
+      font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.01em; margin-bottom: 0.35rem;
     }
 
-    .field input[type="text"],
-    .field input[type="email"],
-    .field textarea {
-      width: 100%;
-      font-family: var(--body);
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: var(--text);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      padding: 0.6rem 0.7rem;
+    .field input[type="text"], .field input[type="email"], .field textarea {
+      width: 100%; font-family: var(--body); font-size: 0.9rem; line-height: 1.6;
+      color: var(--text); background: var(--surface);
+      border: 1px solid var(--border-strong); padding: 0.6rem 0.7rem;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
 
-    .field textarea { resize: vertical; min-height: 8rem; }
+    .field textarea { resize: vertical; min-height: 7.5rem; }
 
-    .field input:focus-visible,
-    .field textarea:focus-visible {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px var(--accent-light);
+    .field input:focus-visible, .field textarea:focus-visible {
+      outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light);
     }
 
-    .field input[aria-invalid="true"],
-    .field textarea[aria-invalid="true"] { border-color: #b91c1c; }
+    .field input[aria-invalid="true"], .field textarea[aria-invalid="true"] { border-color: #b91c1c; }
 
-    .field .err {
-      font-size: 0.78rem;
-      color: #b91c1c;
-      margin-top: 0.3rem;
-    }
+    .field .err { font-size: 0.78rem; color: #b91c1c; margin-top: 0.3rem; }
 
     /* Honeypot — hidden from people, reachable by naive bots */
-    .hp {
-      position: absolute;
-      left: -9999px;
-      width: 1px;
-      height: 1px;
-      opacity: 0;
-      pointer-events: none;
-    }
+    .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 
     .btn-send {
-      font-family: var(--mono);
-      font-size: 0.85rem;
-      font-weight: 500;
-      color: #fff;
-      background: var(--accent);
-      border: 1px solid var(--accent);
-      padding: 0.55rem 1.3rem;
-      cursor: pointer;
-      transition: opacity 0.15s;
+      font-family: var(--mono); font-size: 0.85rem; font-weight: 500;
+      color: #fff; background: var(--accent); border: 1px solid var(--accent);
+      padding: 0.55rem 1.3rem; cursor: pointer;
+      transition: background 0.15s;
     }
-
-    .btn-send:hover:not(:disabled),
-    .btn-send:focus-visible:not(:disabled) { opacity: 0.85; outline: none; }
+    .btn-send:hover:not(:disabled), .btn-send:focus-visible:not(:disabled) {
+      background: var(--accent-deep); border-color: var(--accent-deep); outline: none;
+    }
     .btn-send:focus-visible { box-shadow: 0 0 0 3px var(--accent-light); }
     .btn-send:disabled { opacity: 0.55; cursor: not-allowed; }
 
-    .form-status {
-      font-size: 0.85rem;
-      margin-top: 0.9rem;
-      line-height: 1.6;
-    }
-
+    .form-status { font-size: 0.85rem; margin-top: 0.9rem; line-height: 1.6; }
     .form-status:empty { margin-top: 0; }
-    .form-status.is-ok { color: #15803d; }
+    .form-status.is-ok { color: var(--ok); }
     .form-status.is-err { color: #b91c1c; }
     .form-status.is-pending { color: var(--text-secondary); }
-    .form-status a { color: inherit; }
 
     .setup-note {
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: #92400e;
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-      padding: 0.75rem 0.9rem;
-      margin-bottom: 1.25rem;
+      font-size: 0.82rem; line-height: 1.6; color: #92400e;
+      background: #fffbeb; border: 1px solid #fde68a;
+      padding: 0.75rem 0.9rem; margin-bottom: 1.25rem;
     }
+    .setup-note code { font-family: var(--mono); font-size: 0.78rem; background: rgba(0,0,0,0.05); padding: 0.05rem 0.3rem; }
 
-    .setup-note code {
-      font-family: var(--mono);
-      font-size: 0.78rem;
-      background: rgba(0, 0, 0, 0.05);
-      padding: 0.05rem 0.3rem;
+    .contact-alt {
+      margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--border);
+      font-size: 0.85rem; color: var(--text-secondary);
+      display: flex; flex-wrap: wrap; gap: 0.5rem 1.1rem;
     }
+    .contact-alt a { font-family: var(--mono); font-size: 0.8rem; text-decoration: none; }
+    .contact-alt a:hover { text-decoration: underline; }
 
     /* ── Footer ── */
     footer {
-      padding: 2rem 0;
-      border-top: 1px solid var(--border);
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-      font-family: var(--mono);
+      padding: 2rem 0 3rem; border-top: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--text-muted); font-family: var(--mono);
     }
 
-    .badge-area { margin-top: 1rem; }
-
     /* ── Responsive ── */
-    @media (max-width: 520px) {
-      header h1 { font-size: 1.75rem; }
-      .skills-grid { grid-template-columns: 1fr; }
-      .links-row { gap: 0.4rem; }
-      .links-row a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+    @media (max-width: 620px) {
+      header.hero h1 { font-size: 1.85rem; }
+      .role { font-size: 0.95rem; }
+      .ev-grid { grid-template-columns: 1fr; }
+      .p-row { grid-template-columns: 1fr; gap: 0.1rem; }
+      .p-label { padding-top: 0.4rem; }
+      .nav-links { gap: 0.8rem; }
+      .nav-links a { font-size: 0.72rem; }
+      .nav-name { display: none; }
+      .nav-inner { justify-content: center; }
     }
 
     @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
       * { transition: none !important; }
     }
   </style>
 </head>
 <body>
 
-  <div class="wrap">
+  <a class="skip" href="#main">Skip to content</a>
+
+  <nav class="nav" aria-label="Section navigation">
+    <div class="nav-inner">
+      <span class="nav-name">Nguyễn Hoàng Tú</span>
+      <div class="nav-links">
+        <a href="#projects">Projects</a>
+        <a href="#approach">Approach</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="wrap" id="main">
 
     <!-- ═══ HERO ═══ -->
-    <header>
-      <h1>Tu Nguyen</h1>
-      <div class="tagline">AI Engineer · AI Researcher · Scientific ML</div>
-      <p>
-        I build deep learning systems that work on real-world data — from
-        Transformer architectures for time series forecasting to neural ODEs
-        that encode physical priors. My research interest sits at the intersection
-        of AI engineering, scientific machine learning, and turning messy signals
-        into reliable predictions.
+    <header class="hero">
+      <h1>Nguyễn Hoàng Tú</h1>
+      <p class="role">Machine Learning Engineer / AI Engineer Intern</p>
+      <p class="value-prop">
+        Mathematics and Computer Science undergraduate. I build machine learning
+        systems end to end — framing the decision the model has to support, auditing
+        the data for leakage, building a baseline before reaching for a model, and
+        reporting what actually held up out of sample. Mostly Python and PyTorch, on
+        noisy time-series and ranking problems.
       </p>
-      <nav class="links-row">
+      <div class="cta-row">
+        <a class="btn btn-primary" href="#projects">View projects</a>
+        <a class="btn btn-secondary" href="https://github.com/John-hcmus" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="hero-links">
         <a href="https://www.linkedin.com/in/tuhcmus/" target="_blank" rel="noopener">LinkedIn</a>
-        <a href="https://github.com/John-hcmus" target="_blank" rel="noopener">GitHub</a>
-        <a href="#" target="_blank" rel="noopener">CV</a>
-        <a href="https://calendly.com/nhtuhcmus" target="_blank" rel="noopener">Book a call</a>
+        <span aria-hidden="true">·</span>
         <a href="#contact">Email me</a>
-      </nav>
+      </div>
     </header>
+
+    <!-- ═══ EVIDENCE ═══ -->
+    <section id="evidence">
+      <h2>Evidence</h2>
+      <p class="lede">
+        These figures come from one project whose paper, code and pipeline are public.
+        Every number is out-of-fold under a client-grouped split and reproducible from
+        a fixed seed.
+      </p>
+
+      <div class="ev-grid">
+        <div class="ev">
+          <div class="ev-num">18,010</div>
+          <div class="ev-lab">pages ranked across 30 clients, scored out-of-fold under a client-grouped split</div>
+        </div>
+        <div class="ev">
+          <div class="ev-num">0.88</div>
+          <div class="ev-lab">precision@50, against 0.74 for a transparent rule baseline and a 0.62 base rate</div>
+        </div>
+        <div class="ev">
+          <div class="ev-num">24 kept</div>
+          <div class="ev-lab">features knowable at the decision point; 20+ window-overlapping columns audited out</div>
+        </div>
+        <div class="ev">
+          <div class="ev-num">1 script</div>
+          <div class="ev-lab">reproduces every number, figure and table in the paper from seed 42</div>
+        </div>
+      </div>
+
+      <p class="ev-callout">
+        <strong>The best-scoring model I trained is the one I threw away.</strong>
+        Putting the window-overlapping columns back lifted precision@200 to 0.995 — a
+        beautiful number that was leakage, not skill. The honest model scores lower,
+        and it is the one I shipped.
+      </p>
+    </section>
 
     <!-- ═══ PROJECTS ═══ -->
     <section id="projects">
-      <h2>Projects</h2>
+      <h2>Selected projects</h2>
 
-      <div class="project">
-        <h3>Transformer-Based Time Series Forecasting</h3>
-        <div class="meta">Encoder architecture for volatility prediction</div>
-        <p>
-          Designed and trained a Transformer encoder to forecast realized volatility
-          on financial time series. Built a full pipeline from raw tick data to model
-          inference, with walk-forward validation. Benchmarked against GARCH and
-          LSTM baselines — the Transformer achieved lower MAE and better directional
-          accuracy across rolling test windows.
+      <!-- ── 1. Flagship: verifiable end to end ── -->
+      <article class="project flagship">
+        <div class="p-head">
+          <h3>Search-Ranking Refresh Queue</h3>
+          <span class="p-status live">Paper + code public</span>
+        </div>
+        <p class="p-problem">
+          An editorial team can review about 50 pages a week out of a portfolio of
+          18,000. The useful question is not "which pages are bad" but
+          <em>which pages should be opened first</em> — an ordering problem, not a
+          threshold one.
         </p>
-        <span class="tag">PyTorch</span>
-        <span class="tag">Transformer</span>
-        <span class="tag">Time Series</span>
-        <span class="tag">Walk-Forward CV</span>
-      </div>
 
-      <div class="project">
-        <h3>Neural ODE Signal Pipeline — SciML</h3>
-        <div class="meta">Physics-informed neural networks for continuous-time dynamics</div>
-        <p>
-          Designing a signal generation pipeline using neural ordinary differential
-          equations and PINNs to model continuous-time dynamics in noisy time series.
-          The approach encodes physical priors into the learning process, capturing
-          latent dynamics that discrete-time models miss — bridging scientific ML
-          with practical signal processing.
-        </p>
-        <span class="tag">Neural ODE</span>
-        <span class="tag">PINNs</span>
-        <span class="tag">SciML</span>
-        <span class="tag">PyTorch</span>
-      </div>
+        <div class="p-row">
+          <div class="p-label">Starting point</div>
+          <div class="p-body">
+            FlyRank's public internship starter repo: an anonymized 30,000-row
+            dataset, a skeleton pipeline script and empty notebook templates. No
+            modelling, no framing, no evaluation.
+          </div>
+        </div>
 
-      <div class="project">
-        <h3>Quant Alpha Research Scout — AI Agent</h3>
-        <div class="meta">Autonomous research curation with LLM ranking</div>
-        <p>
-          Built an AI agent that curates weekly research from arXiv and GitHub,
-          scores relevance with keyword matching and LLM-based ranking, and
-          generates structured briefings. Implemented fallback mechanisms
-          for API constraints using GitHub-based proxies and local scoring.
-        </p>
-        <span class="tag">Python</span>
-        <span class="tag">Claude API</span>
-        <span class="tag">GitHub API</span>
-        <span class="tag">AI Agent</span>
-      </div>
+        <div class="p-row">
+          <div class="p-label">My contribution</div>
+          <div class="p-body">
+            <ul>
+              <li>Defined the decision, the label and the decision point: split one 90-day snapshot into three exact 30-day windows and predicted a &gt;20% impressions drop in the last one.</li>
+              <li>Ran the leakage audit that removed every window-spanning column, including one I had been using in an earlier week.</li>
+              <li>Engineered the 24 decision-time features, built the rule baseline first, then the models.</li>
+              <li>Designed the client-grouped split, the stability check across five client holdouts, and the monitoring thresholds.</li>
+              <li>Wrote the 18,010-row action queue with reason codes, suggested action and confidence, plus the paper.</li>
+            </ul>
+          </div>
+        </div>
 
-      <div class="project">
-        <h3>Systematic Trading Strategy — Mean Reversion</h3>
-        <div class="meta">Side project — applying ML to quantitative finance</div>
-        <p>
-          Developed and backtested a mean-reversion options strategy combining
-          statistical signals with risk management rules. Evaluated with
-          walk-forward methodology and Sharpe ratio analysis. A personal
-          project exploring how AI/ML techniques transfer to financial markets.
+        <div class="p-row">
+          <div class="p-label">Approach</div>
+          <div class="p-body">
+            Leakage audit · feature engineering · rule baseline before model ·
+            logistic regression and random forest · GroupKFold(5) by client ·
+            precision@K at the team's real capacity · permutation importance ·
+            stability and error analysis
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Result</div>
+          <div class="p-body">
+            Logistic regression on honest features: <span class="metric">PR-AUC 0.718</span>,
+            <span class="metric">precision@50 0.88</span> — against
+            <span class="metric">0.668 / 0.74</span> for the rule baseline and
+            <span class="metric">0.617</span> for random ordering, on a
+            <span class="metric">0.62</span> base rate. Stable across five client
+            holdouts (<span class="metric">PR-AUC 0.668 ± 0.026</span>). The
+            grouped split scored 0.042 lower than a naive random-row split — evidence
+            that the split design, not the model, was doing the honest work. An
+            earlier rule of mine scored only 12 of 18,010 pages above zero
+            (<span class="metric">ROC-AUC 0.500</span>) and is reported as a failure
+            in the paper.
+          </div>
+        </div>
+
+        <div class="p-stack">Python · scikit-learn · pandas · NumPy · Matplotlib</div>
+
+        <div class="p-links">
+          <a href="https://john-hcmus.github.io/flyrank-ML-internship-starter/" target="_blank" rel="noopener">Read the paper</a>
+          <a href="https://github.com/John-hcmus/flyrank-ML-internship-starter" target="_blank" rel="noopener">View code</a>
+        </div>
+      </article>
+
+      <!-- ── 2 ── -->
+      <article class="project">
+        <div class="p-head">
+          <h3>Transformer Volatility Forecasting</h3>
+        </div>
+        <p class="p-problem">
+          Realized volatility on financial time series is noisy, heteroskedastic and
+          badly served by point forecasts — can an attention model beat the standard
+          econometric baseline on the same walk-forward protocol?
         </p>
-        <span class="tag">backtrader</span>
-        <span class="tag">pandas</span>
-        <span class="tag">Statistics</span>
+
+        <div class="p-row">
+          <div class="p-label">My contribution</div>
+          <div class="p-body">
+            Designed and trained a Transformer encoder for volatility forecasting, and
+            built the full pipeline from raw tick data through resampling and feature
+            construction to inference.
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Approach</div>
+          <div class="p-body">
+            Transformer encoder architecture · data pipeline from raw ticks ·
+            walk-forward validation · benchmarking against GARCH and LSTM baselines ·
+            MAE and directional accuracy across rolling test windows
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Result</div>
+          <div class="p-body">
+            Lower MAE and better directional accuracy than the GARCH and LSTM
+            baselines across rolling test windows, under the same walk-forward
+            protocol for every model.
+          </div>
+        </div>
+
+        <div class="p-stack">Python · PyTorch · pandas · NumPy</div>
+
+        <!-- TODO: add repo link once the code is public — a project with no link is
+             the weakest item on this page. Replace the block below. -->
+      </article>
+
+      <!-- ── 3 ── -->
+      <article class="project">
+        <div class="p-head">
+          <h3>Quant Research Scout — LLM Agent</h3>
+        </div>
+        <p class="p-problem">
+          Keeping up with quantitative-finance research means scanning arXiv and GitHub
+          every week and deciding what is worth reading — repetitive triage that is
+          mostly relevance judgement.
+        </p>
+
+        <div class="p-row">
+          <div class="p-label">My contribution</div>
+          <div class="p-body">
+            Built an agent that pulls candidates from arXiv and GitHub, scores them
+            with keyword matching plus LLM ranking, and writes a structured weekly
+            briefing. Designed the fallback path so the agent degrades to
+            GitHub-based proxies and local scoring instead of failing when the API
+            quota runs out.
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Approach</div>
+          <div class="p-body">
+            API integration · retrieval and filtering · hybrid keyword + LLM relevance
+            ranking · structured output generation · graceful degradation under rate
+            limits
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Result</div>
+          <div class="p-body">
+            A working weekly briefing pipeline that keeps producing usable output when
+            the LLM API is unavailable — the fallback design is the part I would
+            defend in an interview.
+          </div>
+        </div>
+
+        <div class="p-stack">Python · Claude API · GitHub API · arXiv API</div>
+
+        <!-- TODO: add repo link. -->
+      </article>
+
+      <!-- ── 4 ── -->
+      <article class="project">
+        <div class="p-head">
+          <h3>Neural ODE Signal Pipeline</h3>
+          <span class="p-status">In progress</span>
+        </div>
+        <p class="p-problem">
+          Discrete-time models fit noisy physical signals without respecting the
+          dynamics that generated them, which shows up as poor behaviour between
+          observations and under irregular sampling.
+        </p>
+
+        <div class="p-row">
+          <div class="p-label">My contribution</div>
+          <div class="p-body">
+            Building a signal-generation and modelling pipeline on neural ordinary
+            differential equations and physics-informed networks, so that physical
+            priors enter the loss rather than being hoped for.
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Approach</div>
+          <div class="p-body">
+            Neural ODEs · physics-informed loss terms · continuous-time latent
+            dynamics · comparison against discrete-time sequence baselines
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Status</div>
+          <div class="p-body">
+            In progress — no evaluation results yet. Listed because it is what I am
+            actively working on, not as a finished claim.
+          </div>
+        </div>
+
+        <div class="p-stack">Python · PyTorch · SciML</div>
+      </article>
+
+      <!-- ── 5 ── -->
+      <article class="project">
+        <div class="p-head">
+          <h3>Mean-Reversion Strategy Backtest</h3>
+          <span class="p-status">Side project</span>
+        </div>
+        <p class="p-problem">
+          A statistical signal that looks profitable in-sample usually is not — the
+          interesting part is the validation protocol, not the strategy.
+        </p>
+
+        <div class="p-row">
+          <div class="p-label">My contribution</div>
+          <div class="p-body">
+            Implemented and backtested a mean-reversion options strategy with explicit
+            risk-management rules, evaluated walk-forward rather than on a single
+            split, and reported Sharpe alongside the assumptions it depends on.
+          </div>
+        </div>
+
+        <div class="p-row">
+          <div class="p-label">Approach</div>
+          <div class="p-body">
+            Statistical signal construction · walk-forward backtesting · risk rules ·
+            Sharpe ratio analysis
+          </div>
+        </div>
+
+        <div class="p-stack">Python · backtrader · pandas · statistics</div>
+      </article>
+    </section>
+
+    <!-- ═══ HOW I WORK ═══ -->
+    <section id="approach">
+      <h2>How I approach an ML problem</h2>
+      <p class="lede">
+        This is the order I actually work in. It is also the order in which the
+        capstone above was built, and why its honest score is lower than its leaky one.
+      </p>
+
+      <div class="steps">
+        <div class="step"><strong>Define the decision first.</strong> What does someone do differently because of the output? That fixes the label, the grain and the evaluation metric — before any modelling.</div>
+        <div class="step"><strong>Audit the data for leakage.</strong> Every feature gets checked against the decision point. Anything that spans the outcome window is dropped, however predictive it looks.</div>
+        <div class="step"><strong>Build a transparent baseline.</strong> A rule or a simple model, scored the same way. If the model cannot beat it, the model is not the answer.</div>
+        <div class="step"><strong>Experiment systematically.</strong> One change at a time, a fixed seed, and the same split for every candidate so the comparison means something.</div>
+        <div class="step"><strong>Compare, then attack the result.</strong> Check stability across holdouts, inspect what the model leans on, and look for the split design that would make the number collapse.</div>
+        <div class="step"><strong>Write down what did not work.</strong> The failures and limitations go in the report next to the results — they are what makes the results usable.</div>
       </div>
     </section>
 
     <!-- ═══ SKILLS ═══ -->
     <section id="skills">
-      <h2>Tools & stack</h2>
-      <div class="skills-grid">
-        <span>Python, PyTorch</span>
-        <span>Transformer, LSTM, Attention</span>
-        <span>Neural ODEs, PINNs</span>
-        <span>Scientific ML</span>
-        <span>pandas, NumPy, Jupyter</span>
-        <span>Git, GitHub, Linux</span>
-        <span>Claude API, LLM integration</span>
-        <span>Netlify, HTML/CSS</span>
+      <h2>Technical skills</h2>
+      <p class="lede">Grouped by what I can actually do with them, each tied to the project where I used it.</p>
+
+      <div class="skill-group">
+        <div class="skill-name">Machine learning</div>
+        <div class="skill-items">Python, scikit-learn, feature engineering, baselines, cross-validation design, precision@K and PR-AUC, leakage auditing, permutation importance</div>
+        <div class="skill-proof">→ <a href="#projects">Search-Ranking Refresh Queue</a> — 24 audited features, GroupKFold by client, 0.88 precision@50 vs a 0.74 rule baseline</div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-name">Deep learning</div>
+        <div class="skill-items">PyTorch, Transformer encoders, LSTMs, attention, training pipelines, neural ODEs and physics-informed losses</div>
+        <div class="skill-proof">→ Transformer Volatility Forecasting, Neural ODE Signal Pipeline</div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-name">Data</div>
+        <div class="skill-items">pandas, NumPy, exploratory analysis, time-window design, Matplotlib</div>
+        <div class="skill-proof">→ 30,000-row snapshot split into three exact 30-day windows; 18,010-row modelling population after an explicit filter</div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-name">Engineering</div>
+        <div class="skill-items">Git, reproducible pipelines, fixed seeds, REST APIs, LLM integration, end-to-end testing, static deployment</div>
+        <div class="skill-proof">→ One script reproduces the whole capstone; this page's contact form is wired to a live backend and covered by a browser test suite</div>
       </div>
     </section>
 
-    <!-- ═══ WRITING ═══ -->
-    <section id="writing">
-      <h2>Writing</h2>
-      <div class="post-placeholder">
-        Case studies and technical write-ups coming soon.
-      </div>
+    <!-- ═══ EDUCATION ═══ -->
+    <section id="background">
+      <h2>Background</h2>
+      <!-- TODO: add university name and expected graduation year on the line below. -->
+      <div class="edu-role">Mathematics and Computer Science, undergraduate</div>
+      <p class="edu-note">
+        Mathematical background in probability, statistics and linear algebra, which is
+        the part of ML I lean on hardest — evaluation design, what a metric is actually
+        measuring, and when a difference between two models is not a difference.
+        Currently working through a machine learning internship track, of which the
+        capstone above is the final deliverable.
+      </p>
     </section>
 
-    <!-- ═══ CONTACT (the one dynamic feature) ═══ -->
+    <!-- ═══ CONTACT ═══ -->
     <section id="contact">
       <h2>Contact</h2>
       <p class="contact-intro">
-        Hiring, collaboration, or a question about any of the work above — send a
-        message here and it arrives in my inbox. I read everything and reply to
-        anything that isn't a cold pitch.
+        Open to Machine Learning / AI Engineer internships. Questions about any of the
+        work above are welcome too — this form goes straight to my inbox.
       </p>
 
       <!-- Shown only while the access key is still the placeholder. -->
@@ -473,14 +779,16 @@
         <button type="submit" class="btn-send" id="cf-submit">Send message</button>
         <p class="form-status" id="cf-status" role="status" aria-live="polite"></p>
       </form>
+      <div class="contact-alt">
+        <a href="https://github.com/John-hcmus" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://www.linkedin.com/in/tuhcmus/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://calendly.com/nhtuhcmus" target="_blank" rel="noopener">Book a call</a>
+      </div>
     </section>
 
     <!-- ═══ FOOTER ═══ -->
     <footer>
-      <div class="badge-area">
-        <!-- FlyRank completion badge goes here after capstone approval -->
-      </div>
-      <p>&copy; 2026 Tu Nguyen. Built with intent.</p>
+      <p>&copy; 2026 Nguyễn Hoàng Tú · Built and deployed from a single repo.</p>
     </footer>
 
   </div>
@@ -616,6 +924,5 @@
     });
   })();
   </script>
-
 </body>
 </html>
