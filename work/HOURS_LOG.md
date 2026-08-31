@@ -15,7 +15,7 @@
 | 6 | Aug 11–17 | ML-09 | Validation audit, leakage tests, stability analysis across seeds | 20 |
 | 7 | Aug 18–24 | ML-10 | Action playbook, reason codes, queue building, monitoring thresholds | 20 |
 | 8 | Aug 25–31 | ML-11, ML-12, FL-09, FL-10 | Capstone notebook, paper deployment, portfolio site, README, retrospective, demo | 20 |
-| | | | **Total** | ___ |
+| | | | **Total** | 160 |
 
 ### Notes
 
