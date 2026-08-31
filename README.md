@@ -1,147 +1,218 @@
-# FlyRank ML Internship — Starter Repo
+# Content Refresh Priority Engine
 
-**Applied Search Intelligence: Google Search Ranking & Discoverability**
+**A machine-learning pipeline that ranks 18,000+ web pages by their risk of losing search traffic, so an editorial team knows which pages to review first.**
 
-This is the starting point for the FlyRank ML Internship. You **clone it into your own public
-repo** (one click — *Use this template*), build everything there, and submit that repo URL on
-each assignment in your portal — it's your workspace, your submission, and your portfolio all
-at once. The rhythm is simple: do the work, commit it, submit on the card. Done.
-
-Everything here runs on a small **anonymized** slice of real FlyRank search data. No credentials,
-no private client data, no setup headaches.
-
-> **New here?** Two reads: **[SETUP.md](SETUP.md)** (GitHub, Colab, and data access — ten
-> minutes, with every silent pitfall flagged), then **[GUIDE.md](GUIDE.md)** (every file
-> explained, what to edit vs. leave alone, and where your own work goes — five minutes).
+Built during the [FlyRank ML Internship](https://flyrank.ai) on real, anonymized search-console and analytics data. The output is a ranked action queue — not an automatic decision, but a prioritized list with reason codes that supports human editorial review.
 
 ---
 
-## Quickstart — first win in 2 minutes
+## Who this is for
 
-The fastest path is Google Colab (one click, zero install). Open Notebook 1 and run all cells:
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/notebooks/01_first_look_and_discovery.ipynb?flush_cache=true)
- **Week 1 — Run it, then discover a real truth yourself**
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/notebooks/02_your_first_readable_model.ipynb?flush_cache=true)
- **Week 2 — The model is just a rule you can read**
-
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/notebooks/03_working_with_the_full_release.ipynb?flush_cache=true)
- **Weeks 3+ — The full release (~79M rows) via DuckDB, no download needed** — hosted at
- [`FlyRank/internship-warehouse`](https://huggingface.co/datasets/FlyRank/internship-warehouse) (gated: request access + accept the data-use terms, approval is instant)
+- **Content editors** managing large portfolios who can review ~50 pages a week and need to pick the right ones first.
+- **SEO practitioners** who want a data-driven triage instead of sorting by "oldest" or "most traffic."
+- **ML learners** who want to see a complete, honest pipeline: problem framing → leakage hunting → baseline → model → evaluation → actionable output.
 
 ---
 
-## Your assignment notebooks — open, fill, save, done
+## What it does
 
-Every assignment is one pre-named skeleton notebook in `work/notebooks/`. Click its badge,
-fill the sections in order, then **File → Save a copy in GitHub → OK** — the dialog is
-already pre-filled with your repo and the right path.
+Given a snapshot of search and content performance data (impressions, clicks, sessions, content age, keyword metrics), the engine:
 
-> **The badges know whose repo they're in.** About 30 seconds after you create your copy, an
-> automatic commit ("Point Colab badges at this copy") rewires every badge in it to open
-> **your** notebooks — with your saved work — instead of the shared read-only ones. Reading
-> this on the shared starter page? The badges below open blank previews; make your copy
-> first ([SETUP.md](SETUP.md), Moment 1).
+1. **Decomposes the 90-day window** into three 30-day sub-windows and uses only the two that precede the outcome period — no future information leaks into the features.
+2. **Builds 24 decision-time features** from demand levels, prior momentum, click capture rates, content metadata, and keyword context.
+3. **Trains a logistic regression** scored out-of-fold under a client-grouped 5-fold split, so no client's pages appear in both train and test.
+4. **Produces a ranked queue** of 18,010 pages, each carrying a risk score, reason codes, a suggested action (`review_for_refresh`, `review_metadata_and_intent`, `protect_and_refresh`, `monitor`), and a confidence label.
 
-| Week | Card | Notebook | Open |
-|---|---|---|---|
-| 1 | ML-02 | `w01_research_question` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w01_research_question.ipynb?flush_cache=true) |
-| 2 | ML-03 | `w02_ml_task_framing` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w02_ml_task_framing.ipynb?flush_cache=true) |
-| 3 | ML-04 | `w03_data_contract` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w03_data_contract.ipynb?flush_cache=true) |
-| 3 | ML-05 | `w03_feature_leakage_check` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w03_feature_leakage_check.ipynb?flush_cache=true) |
-| 4 | ML-06 | `w04_signal_audit` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w04_signal_audit.ipynb?flush_cache=true) |
-| 4 | ML-07 | `w04_baseline_score` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w04_baseline_score.ipynb?flush_cache=true) |
-| 5 | ML-08 | `w05_model` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w05_model.ipynb?flush_cache=true) |
-| 6 | ML-09 | `w06_validation_audit` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w06_validation_audit.ipynb?flush_cache=true) |
-| 7 | ML-10 | `w07_action_playbook` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/w07_action_playbook.ipynb?flush_cache=true) |
-| 8 | ML-11 | `capstone` | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/capstone.ipynb?flush_cache=true) |
+---
 
-Badges not opening *your* copy? Colab's built-in opener always works: **File → Open notebook
-→ GitHub tab** → paste `github.com/you/your-repo` → pick the notebook.
+## Setup — from zero to results
 
-### Prefer local?
+### Option A: Google Colab (zero install, recommended)
+
+Click any badge below to open the notebook directly:
+
+| Notebook | What it does | Open |
+|---|---|---|
+| `01_first_look_and_discovery` | Explore the dataset, find your first real pattern | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/notebooks/01_first_look_and_discovery.ipynb?flush_cache=true) |
+| `02_your_first_readable_model` | Build a transparent rule-based model | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/notebooks/02_your_first_readable_model.ipynb?flush_cache=true) |
+| `capstone` | Full capstone: leakage-free pipeline end to end | [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/John-hcmus/flyrank-ML-internship-starter/blob/main/work/notebooks/capstone.ipynb?flush_cache=true) |
+
+### Option B: Local
 
 ```bash
-git clone <this-repo-url>
-cd flyrank-ml-internship-starter
-pip install -r requirements.txt          # or: uv pip install -r requirements.txt
+git clone https://github.com/John-hcmus/flyrank-ML-internship-starter.git
+cd flyrank-ML-internship-starter
+pip install -r requirements.txt
+
+# Run the reference pipeline (~10s on the bundled 30k-row sample)
 python scripts/run_all.py
+
+# Run the capstone pipeline (~25s, writes metrics + figures)
+python work/scripts/capstone_pipeline.py
 ```
 
-That runs the whole pipeline on the bundled sample and writes results to `outputs/`.
+**Requirements:** Python 3.11+, and the packages in `requirements.txt`:
+
+```
+pandas>=2.2
+numpy>=1.26
+scikit-learn>=1.4
+matplotlib>=3.8
+reportlab>=4.0
+duckdb>=1.0
+huggingface_hub>=0.24
+```
+
+### Option C: Full warehouse (79M rows, optional)
+
+The full dataset is hosted at [`FlyRank/internship-warehouse`](https://huggingface.co/datasets/FlyRank/internship-warehouse) (gated — request access and accept the data-use terms; approval is instant). Query it via DuckDB without downloading:
+
+```python
+import duckdb
+con = duckdb.connect()
+con.sql("SELECT count(*) FROM 'hf://datasets/FlyRank/internship-warehouse/warehouse.parquet'")
+```
+
+See `notebooks/03_working_with_the_full_release.ipynb` for the guided walkthrough.
 
 ---
 
-## What you get
+## Architecture
+
+```
+data/raw/content_refresh_anonymized.csv          30,000 pages × 44 columns
+        │
+        │  Window decomposition + leakage exclusion
+        │  (90d → first30 + prev30 + last30; only first30/prev30 used)
+        ▼
+   24 decision-time features
+        │
+        ├─── Rule baseline (hand-written, no fitting)
+        │         └─ "demand fell between visible windows + still has traffic"
+        │
+        └─── Logistic regression (standardised, GroupKFold by client_id)
+                  │
+                  ▼
+         Ranked action queue (18,010 rows)
+         ┌────────────────────────────────────────────┐
+         │  risk_score · reason_codes · suggested_action │
+         │  confidence_label · decision_state            │
+         └────────────────────────────────────────────┘
+                  │
+                  ▼
+         Human editorial review
+         (the model supports the order, not the decision)
+```
+
+**Key design choice:** The 90-day metrics window overlaps the outcome period. Instead of using the convenient `impressions_90d` or `days_since_last_update`, every feature is built from the two sub-windows that precede the label window. This costs performance (precision@200 drops from 0.995 to 0.815) but removes temporal leakage — the model cannot cheat by seeing the future.
+
+---
+
+## Evaluation results (v2 — leakage-free)
+
+All metrics are **out-of-fold** under `GroupKFold(5)` grouped by `client_id`. Base rate = 61.6%.
+
+| Method | P@20 | P@50 | P@200 | PR-AUC | ROC-AUC |
+|---|---|---|---|---|---|
+| Random ordering | 0.700 | 0.580 | 0.635 | 0.617 | 0.498 |
+| Week-4 rule (contaminated) | 0.850 | 0.720 | 0.615 | 0.616 | 0.500 |
+| Legal rule baseline | 0.900 | 0.740 | 0.730 | 0.668 | 0.562 |
+| **Logistic regression (shipped)** | **0.900** | **0.880** | **0.815** | **0.718** | **0.641** |
+| Random forest | 0.750 | 0.800 | 0.790 | 0.711 | 0.637 |
+| *[leaky] RF + overlapping columns* | *1.000* | *1.000* | *0.995* | *0.775* | *0.687* |
+
+**What this means:** At the team's capacity of ~50 pages/week, roughly **44 of the first 50** are real decliners (vs 31 for the hand-written rule and 29 by chance).
+
+**Stability:** Across 5 different client holdouts (seeds 42, 7, 2024, 101, 777): PR-AUC 0.668 ± 0.026, precision@50 0.816 ± 0.048.
+
+**Split-design gap:** Random row split PR-AUC = 0.760 vs grouped = 0.718. The +0.042 difference was client memorisation, not transferable skill.
+
+---
+
+## Limitations
+
+1. **One snapshot, no causal claims.** This is cross-sectional data from one time period. The model ranks pages by *associated* risk — it cannot say refreshing a page will recover its traffic. The honest framing is decision-support, not prediction.
+
+2. **Small client pool (30 clients).** With only 30 clients in the grouped split, the PR-AUC range across holdouts (0.630–0.702) is wide. The range is the result, not the single 0.718.
+
+3. **The middle of the queue is uninformative.** Risk deciles 5–7 sit at 62–71% decline rate, barely above the 61.6% base rate. The queue is trustworthy at the top and near-random in the middle.
+
+4. **No content understanding.** The model never reads page content, cannot detect sibling pages absorbing demand (consolidation), and cannot separate seasonality from genuine decline. A human gate in front of every action is a design requirement, not a nice-to-have.
+
+5. **Recovery cannot be predicted ahead of time.** Detecting a recovery before it happens needs two consecutive deltas (a fall, then a rise). This slice has only one pre-decision delta. The engine can report that 1,063 pages recovered; it cannot say in advance which ones will.
+
+6. **The bundled dataset only.** The full ~79M-row warehouse was not used (no `HF_TOKEN` in the build environment). The feature contract is source-agnostic, but the published numbers are from the 30k public slice.
+
+7. **`days_since_last_update` was excluded.** It is exactly the signal my Week-4 rule depended on, but 68% of pages were updated inside the outcome window — it knows the future. This was the hardest exclusion and the most important one.
+
+---
+
+## Key findings
+
+- **"Impressions spiking without clicks" is the strongest early-warning signal.** The logistic model's largest positive coefficient is on `log_impr_prev30` (+0.910) while `log_clicks_prev30` is the most important feature (importance 0.077, coefficient −0.583). Translation: traffic showing up without engagement is a warning, not good news.
+
+- **My own Week-4 baseline failed.** It scored only 12 of 18,010 pages above zero. It works as a filter ("find old, visible pages") but cannot order a queue — ROC-AUC 0.500. This was the most useful result of the project.
+
+- **Older content declined less, not more.** In this slice, pages older than 365 days declined at 44.9% vs 71.2% for 91–180 day pages. Confounded with content mix and demand — reported as directional, not a recommendation.
+
+---
+
+## Repository structure
 
 | Path | What it is |
 |---|---|
-| `notebooks/` | Week 1–2 **first-win notebooks** (Colab-ready). Start here. |
-| `scripts/01–05` + `run_all.py` | The runnable reference pipeline: prepare → baseline → train → evaluate → PDF. |
-| `data/raw/content_refresh_anonymized.csv` | The anonymized starter dataset (~30k pages). |
-| `outputs/` | Example outputs so you can see the **target shape** (`model_report.md`, `refresh_queue_sample.csv`, `charts/`). |
-| `work/` | **Your space.** Lane experiments and your capstone live here — see `work/README.md`. |
-| `docs/` | The core docs + the data dictionary (see below). |
-
-### Read these (in `docs/`)
-
-1. **`ml-core-foundation-framework.md`** — the first-principles map of ML as a whole system. The backbone of the live sessions.
-2. **`ml-intern-dataset-and-lane-guide.md`** — how to use the data safely, the capstone workflow, and the analysis "lanes" you can pick from.
-3. **`intern-free-tooling-guide.md`** — the zero-budget tool stack (Python, Colab, free AI assistants). You never need to pay for anything.
-4. **`data-dictionary.md`** — all 44 columns: meaning, scale, and gotchas. Keep it open while you work.
+| `data/raw/` | The anonymized starter dataset (30k pages × 44 columns) |
+| `scripts/` | Reference pipeline: prepare → baseline → train → evaluate → PDF |
+| `notebooks/` | Week 1–2 guided notebooks (Colab-ready) |
+| `work/notebooks/` | All assignment notebooks (ML-02 through ML-12) |
+| `work/scripts/` | Capstone pipeline + paper builder |
+| `work/outputs/` | Metrics JSONs (committed receipts) |
+| `work/figures/` | SVG charts from the capstone pipeline |
+| `work/capstone_report.md` | Full capstone write-up |
+| `docs/index.html` | Deployed research paper |
+| `docs/portfolio/` | Personal portfolio site |
+| `outputs/` | Reference pipeline outputs (model report, sample queue, charts) |
+| `skills/` | AI assistant instruction library |
 
 ---
 
-## The pipeline (what `run_all.py` does)
+## Deployed outputs
 
-```text
-01_prepare_features.py   clean + build the feature vector, define the label
-02_baseline_score.py     a transparent hand-rule "fix this first" score
-03_train_model.py        logistic regression, decision tree, random forest (client-holdout split)
-04_evaluate_and_export.py  ranked queue + charts + Markdown report
-05_build_pdf_report.py   a shareable PDF summary
+- **Research paper:** [john-hcmus.github.io/flyrank-ML-internship-starter](https://john-hcmus.github.io/flyrank-ML-internship-starter/)
+- **Portfolio site:** [john-hcmus.github.io/flyrank-ML-internship-starter/portfolio](https://john-hcmus.github.io/flyrank-ML-internship-starter/portfolio/)
+
+---
+
+## AI transparency
+
+This project was built with Claude (Anthropic) as an AI coding assistant. Specifically:
+
+- **Pipeline code** (`work/scripts/capstone_pipeline.py`, `work/scripts/build_paper.py`): scaffolded with Claude, then reviewed and modified by me. Every function was tested against the data to verify it produces correct outputs.
+- **Feature engineering and leakage analysis**: the window decomposition logic and feature exclusion list were my design decisions, validated by running deliberate-leak tests in the notebooks.
+- **Report and paper writing**: drafted with Claude's help, but every claim was checked against the actual metrics JSONs (`work/outputs/*.json`), and the claims checklist at the end of `capstone_report.md` was verified manually.
+- **What I checked myself**: the leakage exclusion list (especially the `days_since_last_update` decision), the grouped-split design, the stability analysis across seeds, and every number in the evaluation table against a fresh pipeline run.
+
+---
+
+## Reproducibility
+
+```bash
+git clone https://github.com/John-hcmus/flyrank-ML-internship-starter.git
+cd flyrank-ML-internship-starter
+pip install -r requirements.txt
+python work/scripts/capstone_pipeline.py   # ~25s; writes work/outputs/*.json + work/figures/*.svg
 ```
 
-On the bundled sample, the learned model clearly beats the hand-written rule at picking the right
-pages to review first (**Precision@50 ≈ 0.24 → 0.74**; the model number can land 0.68–0.74
-depending on library versions — the ~3x lift is the point). The notebooks compute these numbers
-live, so they always reflect the current data and environment.
-
-**Teaching point:** the model is the capstone, but the *workflow* is the lesson —
-`problem framing → data cleaning → baseline → first model → evaluation → explainable recommendation`.
+- **Seed:** `RANDOM_SEED = 42` everywhere.
+- **CV:** `GroupKFold(5)` by `client_id` — deterministic, no seed dependence.
+- **Environment:** Python 3.11, pandas 2.x, scikit-learn 1.7.x, matplotlib 3.x.
 
 ---
 
-## Data safety (read `DATA_USE.md`)
+## Data safety
 
-- Only the small **anonymized** CSV ships here — no client names, domains, URLs, titles, or keywords.
-- **Never** add raw private client data to this repo or your fork. Need more data? Request an approved
-  release from your mentor — never export it yourself.
-- Don't paste client data into third-party AI tools.
-- Frame every result as **observed / measured / directional / decision-support** — never
-  "I predicted Google's algorithm."
-
-The `.gitignore` blocks datasets by default, and CI fails any commit that includes a dataset.
+Only the anonymized CSV ships in this repo — no client names, domains, URLs, titles, or keywords. See [DATA_USE.md](DATA_USE.md) for the full data-use terms. The `.gitignore` blocks datasets by default, and CI fails any commit that includes one.
 
 ---
 
-## Assignments & schedule
-
-Weekly assignments, live events, and the capstone live on **your portal board** (your
-enrollment email has your access link). This repo is the shared technical foundation they all
-build on — and the `skills/` folder here is the instruction library for your AI assistant
-(start at [skills/README.md](skills/README.md)).
-
-**First time with GitHub?** You need exactly four things (full walkthrough: [SETUP.md](SETUP.md)):
-1. A free account at github.com.
-2. Your own copy of this repo: **Use this template → Create a new repository** → public.
-   (One click — brings the notebooks, `work/`, and the CI leak-guard with it.)
-3. In Colab: *File → Save a copy in GitHub* — opened from your copy's badges, the dialog is
-   already pre-filled with your repo and path, so it's just OK (Colab handles auth).
-4. That's your submission repo — share its **github.com/you/your-repo** URL with Assignment 1
-   (never a colab.research.google.com or drive.google.com link).
-
----
-
-*Track leads: Mirza Ašćerić (ML) · Hole (data engineering). Code under MIT (see `LICENSE`); data under `DATA_USE.md`.*
+*Built on the [FlyRank ML Internship dataset](https://flyrank.ai). Code under MIT ([LICENSE](LICENSE)); data under [DATA_USE.md](DATA_USE.md).*
