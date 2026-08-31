@@ -93,6 +93,18 @@ Worth recording, because "I tested it" means nothing without the list:
 | Keyboard only | every control reachable; honeypot never focusable |
 | Second message, same session | works |
 
+### 4. No `<main>` landmark — found by Lighthouse
+
+The page wrapper was a plain `<div>`. Screen readers use landmarks to let people jump
+straight past the navigation to the content, and there was nothing to jump to — my own
+"Skip to content" link pointed at an element that carried no landmark role. Lighthouse's
+accessibility audit caught it; I had not thought to look.
+
+**Fix:** `<div class="wrap" id="main">` became `<main class="wrap" id="main">`.
+**Evidence:** Lighthouse accessibility went 98 → **100** on a re-run; the main-landmark
+audit was the only accessibility failure in the first run, and the only imperfect audit
+left afterwards is the blocked-font console error described under Speed.
+
 ---
 
 ## Known limitations — not fixed, not hidden
@@ -156,21 +168,61 @@ The audit script asserts it is exactly 1200×630 so it can never silently rot.
 
 ## Speed
 
-Measured over localhost, so **network latency is excluded** — treat these as a floor,
-not a real-world score.
+Two measurements, and they disagree — which is the honest part.
+
+### Lighthouse 13.4.1 (mobile, simulated throttling)
+
+Run with the real Lighthouse binary against the real page, so these are the same audits
+PageSpeed Insights runs for its lab section.
+
+| Category | Score |
+|---|---|
+| Performance | **90** |
+| Accessibility | 98 → **100**, confirmed by a second run after the `<main>` fix |
+| Best Practices | **96** |
+| SEO | **100** |
+
+| Metric | Value |
+|---|---|
+| First Contentful Paint | 1.5 s |
+| Largest Contentful Paint | 1.5 s |
+| Total Blocking Time | **0 ms** |
+| Cumulative Layout Shift | **0** |
+| Time to Interactive | 1.5 s |
+
+Zero blocking time and zero layout shift are the two I care about: nothing on this page
+blocks the main thread, and nothing jumps around while it loads.
+
+**Three results in that run are artefacts of my build environment, not real:**
+
+- **Speed Index 19.6 s.** The sandbox has no outbound network, so the Google Fonts
+  request hangs until it resets. Speed Index measures visual completeness over time, so
+  a hanging request destroys it. On a real network this number will be close to FCP.
+- **"Browser errors were logged to the console."** One error:
+  `net::ERR_CONNECTION_RESET` — the same blocked font request. There are no JavaScript
+  errors; the other suites assert that separately.
+- **"Document request latency, est. savings 27 KiB."** My local `http.server` sends no
+  compression. GitHub Pages serves gzip/brotli automatically, so this disappears in
+  production.
+
+**Two are real and I am choosing not to fix them:**
+
+- **Render-blocking request, ~650 ms** — the Google Fonts stylesheet. Removing it means
+  self-hosting the fonts or dropping them. Already mitigated with `preconnect` and
+  `display=swap`, so text paints immediately in a fallback face.
+- **"Minify CSS, est. savings 3 KiB."** The CSS is inlined and hand-maintained. Three
+  kilobytes is not worth making the only stylesheet unreadable on a page I edit by hand.
+
+### Raw payload, over localhost
 
 | Metric | Value |
 |---|---|
 | Visitor payload | **41 KB** total (HTML + favicon) |
-| First contentful paint | 108 ms |
-| DOMContentLoaded | 30 ms |
 | DOM nodes | 234 |
-| Requests | 3 — the document, the favicon, and Google Fonts |
-| Render-blocking external resources | 1 (Google Fonts) |
+| Requests | 3 — document, favicon, Google Fonts |
 
-No images on the page, no JavaScript frameworks, no CSS files: everything is inlined in
-one 41 KB document. The 62 KB `og.png` is fetched only by social crawlers, never by a
-visitor.
+No images on the page, no frameworks, no CSS or JS files: everything is inlined in one
+document. The 62 KB `og.png` is fetched only by social crawlers, never by a visitor.
 
 ---
 
@@ -178,8 +230,9 @@ visitor.
 
 Three things I could not do myself, and why:
 
-1. **A real PageSpeed Insights / Lighthouse run.** It has to hit the live URL from
-   outside. My numbers exclude network latency entirely.
+1. **A PageSpeed Insights run against the live URL.** Lighthouse has now been run
+   locally (above), which covers the lab audits — but PSI also reports field data from
+   real Chrome users, and it measures over a real network rather than localhost.
 2. **Searching my own name to check findability.** Indexing takes days to weeks after
    the meta went live; the sitemap still needs submitting to Google Search Console.
 3. **The hardening review itself** — a mentor or structured peer read of this document
