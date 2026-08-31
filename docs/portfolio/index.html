@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tu Nguyen — AI Engineer & Researcher</title>
+  <meta name="description" content="AI engineer and researcher building deep learning systems for time series, scientific ML, and real-world signal processing.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #fafaf9;
+      --surface: #ffffff;
+      --text: #18181b;
+      --text-secondary: #52525b;
+      --accent: #0369a1;
+      --accent-light: #e0f2fe;
+      --border: #e4e4e7;
+      --mono: 'Space Grotesk', monospace;
+      --body: 'Inter', -apple-system, sans-serif;
+      --max-w: 680px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--body);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* ── Header / Hero ── */
+    header {
+      padding: 4rem 0 3rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    header h1 {
+      font-family: var(--mono);
+      font-size: 2.25rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+      margin-bottom: 0.75rem;
+    }
+
+    header .tagline {
+      font-family: var(--mono);
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+    }
+
+    header p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      max-width: 540px;
+    }
+
+    .links-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .links-row a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--mono);
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 0.4rem 0.85rem;
+      border: 1px solid var(--accent);
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .links-row a:hover,
+    .links-row a:focus-visible {
+      background: var(--accent);
+      color: #fff;
+      outline: none;
+    }
+
+    /* ── Sections ── */
+    section { padding: 2.5rem 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    section h2 {
+      font-family: var(--mono);
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.01em;
+    }
+
+    /* ── Project Cards ── */
+    .project {
+      margin-bottom: 1.75rem;
+    }
+
+    .project h3 {
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.35rem;
+    }
+
+    .project .meta {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      font-family: var(--mono);
+      margin-bottom: 0.5rem;
+    }
+
+    .project p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    .tag {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--accent-light);
+      padding: 0.15rem 0.5rem;
+      margin-right: 0.3rem;
+      margin-top: 0.5rem;
+    }
+
+    /* ── Skills ── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem 2rem;
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+    }
+
+    .skills-grid span {
+      padding: 0.25rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ── Writing placeholder ── */
+    .post-placeholder {
+      padding: 1.5rem;
+      border: 1px dashed var(--border);
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      text-align: center;
+    }
+
+
+    /* ── Contact form ── */
+    .contact-intro {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      max-width: 540px;
+    }
+
+    .contact-form { max-width: 520px; }
+
+    .field { margin-bottom: 1.1rem; }
+
+    .field label {
+      display: block;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      margin-bottom: 0.35rem;
+    }
+
+    .field input[type="text"],
+    .field input[type="email"],
+    .field textarea {
+      width: 100%;
+      font-family: var(--body);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.6rem 0.7rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field textarea { resize: vertical; min-height: 8rem; }
+
+    .field input:focus-visible,
+    .field textarea:focus-visible {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-light);
+    }
+
+    .field input[aria-invalid="true"],
+    .field textarea[aria-invalid="true"] { border-color: #b91c1c; }
+
+    .field .err {
+      font-size: 0.78rem;
+      color: #b91c1c;
+      margin-top: 0.3rem;
+    }
+
+    /* Honeypot — hidden from people, reachable by naive bots */
+    .hp {
+      position: absolute;
+      left: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .btn-send {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border: 1px solid var(--accent);
+      padding: 0.55rem 1.3rem;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .btn-send:hover:not(:disabled),
+    .btn-send:focus-visible:not(:disabled) { opacity: 0.85; outline: none; }
+    .btn-send:focus-visible { box-shadow: 0 0 0 3px var(--accent-light); }
+    .btn-send:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .form-status {
+      font-size: 0.85rem;
+      margin-top: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .form-status:empty { margin-top: 0; }
+    .form-status.is-ok { color: #15803d; }
+    .form-status.is-err { color: #b91c1c; }
+    .form-status.is-pending { color: var(--text-secondary); }
+    .form-status a { color: inherit; }
+
+    .setup-note {
+      font-size: 0.82rem;
+      line-height: 1.6;
+      color: #92400e;
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      padding: 0.75rem 0.9rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .setup-note code {
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 0.05rem 0.3rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 2rem 0;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      font-family: var(--mono);
+    }
+
+    .badge-area { margin-top: 1rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 520px) {
+      header h1 { font-size: 1.75rem; }
+      .skills-grid { grid-template-columns: 1fr; }
+      .links-row { gap: 0.4rem; }
+      .links-row a { font-size: 0.78rem; padding: 0.35rem 0.7rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <!-- ═══ HERO ═══ -->
+    <header>
+      <h1>Tu Nguyen</h1>
+      <div class="tagline">AI Engineer · AI Researcher · Scientific ML</div>
+      <p>
+        I build deep learning systems that work on real-world data — from
+        Transformer architectures for time series forecasting to neural ODEs
+        that encode physical priors. My research interest sits at the intersection
+        of AI engineering, scientific machine learning, and turning messy signals
+        into reliable predictions.
+      </p>
+      <nav class="links-row">
+        <a href="https://www.linkedin.com/in/tuhcmus/" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/John-hcmus" target="_blank" rel="noopener">GitHub</a>
+        <a href="#" target="_blank" rel="noopener">CV</a>
+        <a href="https://calendly.com/nhtuhcmus" target="_blank" rel="noopener">Book a call</a>
+        <a href="#contact">Email me</a>
+      </nav>
+    </header>
+
+    <!-- ═══ PROJECTS ═══ -->
+    <section id="projects">
+      <h2>Projects</h2>
+
+      <div class="project">
+        <h3>Transformer-Based Time Series Forecasting</h3>
+        <div class="meta">Encoder architecture for volatility prediction</div>
+        <p>
+          Designed and trained a Transformer encoder to forecast realized volatility
+          on financial time series. Built a full pipeline from raw tick data to model
+          inference, with walk-forward validation. Benchmarked against GARCH and
+          LSTM baselines — the Transformer achieved lower MAE and better directional
+          accuracy across rolling test windows.
+        </p>
+        <span class="tag">PyTorch</span>
+        <span class="tag">Transformer</span>
+        <span class="tag">Time Series</span>
+        <span class="tag">Walk-Forward CV</span>
+      </div>
+
+      <div class="project">
+        <h3>Neural ODE Signal Pipeline — SciML</h3>
+        <div class="meta">Physics-informed neural networks for continuous-time dynamics</div>
+        <p>
+          Designing a signal generation pipeline using neural ordinary differential
+          equations and PINNs to model continuous-time dynamics in noisy time series.
+          The approach encodes physical priors into the learning process, capturing
+          latent dynamics that discrete-time models miss — bridging scientific ML
+          with practical signal processing.
+        </p>
+        <span class="tag">Neural ODE</span>
+        <span class="tag">PINNs</span>
+        <span class="tag">SciML</span>
+        <span class="tag">PyTorch</span>
+      </div>
+
+      <div class="project">
+        <h3>Quant Alpha Research Scout — AI Agent</h3>
+        <div class="meta">Autonomous research curation with LLM ranking</div>
+        <p>
+          Built an AI agent that curates weekly research from arXiv and GitHub,
+          scores relevance with keyword matching and LLM-based ranking, and
+          generates structured briefings. Implemented fallback mechanisms
+          for API constraints using GitHub-based proxies and local scoring.
+        </p>
+        <span class="tag">Python</span>
+        <span class="tag">Claude API</span>
+        <span class="tag">GitHub API</span>
+        <span class="tag">AI Agent</span>
+      </div>
+
+      <div class="project">
+        <h3>Systematic Trading Strategy — Mean Reversion</h3>
+        <div class="meta">Side project — applying ML to quantitative finance</div>
+        <p>
+          Developed and backtested a mean-reversion options strategy combining
+          statistical signals with risk management rules. Evaluated with
+          walk-forward methodology and Sharpe ratio analysis. A personal
+          project exploring how AI/ML techniques transfer to financial markets.
+        </p>
+        <span class="tag">backtrader</span>
+        <span class="tag">pandas</span>
+        <span class="tag">Statistics</span>
+      </div>
+    </section>
+
+    <!-- ═══ SKILLS ═══ -->
+    <section id="skills">
+      <h2>Tools & stack</h2>
+      <div class="skills-grid">
+        <span>Python, PyTorch</span>
+        <span>Transformer, LSTM, Attention</span>
+        <span>Neural ODEs, PINNs</span>
+        <span>Scientific ML</span>
+        <span>pandas, NumPy, Jupyter</span>
+        <span>Git, GitHub, Linux</span>
+        <span>Claude API, LLM integration</span>
+        <span>Netlify, HTML/CSS</span>
+      </div>
+    </section>
+
+    <!-- ═══ WRITING ═══ -->
+    <section id="writing">
+      <h2>Writing</h2>
+      <div class="post-placeholder">
+        Case studies and technical write-ups coming soon.
+      </div>
+    </section>
+
+    <!-- ═══ CONTACT (the one dynamic feature) ═══ -->
+    <section id="contact">
+      <h2>Contact</h2>
+      <p class="contact-intro">
+        Hiring, collaboration, or a question about any of the work above — send a
+        message here and it arrives in my inbox. I read everything and reply to
+        anything that isn't a cold pitch.
+      </p>
+
+      <!-- Shown only while the access key is still the placeholder. -->
+      <p class="setup-note" id="cf-setup" hidden>
+        This form isn't connected yet: the <code>access_key</code> below is still a
+        placeholder. Get a free key at <code>web3forms.com</code> and paste it in.
+      </p>
+
+      <!--
+        Progressive enhancement: action + method make this a plain HTML form that
+        posts to Web3Forms even with JavaScript off. The script below intercepts it
+        and posts the same fields with fetch(), so the visitor never leaves the page.
+      -->
+      <form id="cf-form" class="contact-form"
+            action="https://api.web3forms.com/submit" method="POST">
+
+        <!-- ↓↓↓ THE ONE LINE TO EDIT: paste your Web3Forms access key here ↓↓↓ -->
+        <input type="hidden" name="access_key" value="88690ebb-3977-424b-b2d5-6ce8b9fc3d1f">
+        <!-- ↑↑↑ ---------------------------------------------------------- ↑↑↑ -->
+
+        <input type="hidden" name="subject" value="New message from your portfolio">
+        <input type="hidden" name="from_name" value="tunguyen.dev portfolio">
+
+        <!-- Honeypot: people can't see or tab to it, so anything that fills it is a bot. -->
+        <input type="checkbox" name="botcheck" class="hp" tabindex="-1" autocomplete="off" aria-hidden="true">
+
+        <div class="field">
+          <label for="cf-name">Name</label>
+          <input id="cf-name" name="name" type="text" required maxlength="100"
+                 autocomplete="name" aria-describedby="cf-name-err">
+          <p class="err" id="cf-name-err" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="cf-email">Email</label>
+          <input id="cf-email" name="email" type="email" required maxlength="200"
+                 autocomplete="email" aria-describedby="cf-email-err">
+          <p class="err" id="cf-email-err" hidden></p>
+        </div>
+
+        <div class="field">
+          <label for="cf-message">Message</label>
+          <textarea id="cf-message" name="message" required minlength="10" maxlength="3000"
+                    aria-describedby="cf-message-err"></textarea>
+          <p class="err" id="cf-message-err" hidden></p>
+        </div>
+
+        <button type="submit" class="btn-send" id="cf-submit">Send message</button>
+        <p class="form-status" id="cf-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer>
+      <div class="badge-area">
+        <!-- FlyRank completion badge goes here after capstone approval -->
+      </div>
+      <p>&copy; 2026 Tu Nguyen. Built with intent.</p>
+    </footer>
+
+  </div>
+
+  <script>
+  /*
+    Contact form — the one dynamic feature on this page.
+
+    Flow: browser  ->  fetch POST (JSON)  ->  api.web3forms.com  ->  my inbox.
+    The page itself stays static (GitHub Pages can only serve files); Web3Forms is
+    the rented backend that turns a POST into an email. See work/portfolio/HOW-IT-WORKS.md.
+  */
+  (function () {
+    'use strict';
+
+    var PLACEHOLDER = 'PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE';
+
+    var form = document.getElementById('cf-form');
+    if (!form) return;
+
+    var statusEl = document.getElementById('cf-status');
+    var submitEl = document.getElementById('cf-submit');
+    var setupEl  = document.getElementById('cf-setup');
+    var keyValue = (form.elements.access_key.value || '').trim();
+
+    var configured = keyValue !== '' && keyValue !== PLACEHOLDER;
+    if (!configured) setupEl.hidden = false;
+
+    // JavaScript is available, so take over validation and use my own wording.
+    form.setAttribute('novalidate', 'novalidate');
+
+    var FIELDS = [
+      { id: 'cf-name', err: 'cf-name-err', check: function (v) {
+          return v ? '' : 'Please tell me your name.';
+      } },
+      { id: 'cf-email', err: 'cf-email-err', check: function (v) {
+          if (!v) return 'I need an email address to reply to.';
+          return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)
+            ? '' : "That doesn't look like an email address.";
+      } },
+      { id: 'cf-message', err: 'cf-message-err', check: function (v) {
+          if (!v) return 'Please write a message.';
+          return v.length >= 10 ? '' : 'A little more detail, please (at least 10 characters).';
+      } }
+    ];
+
+    function setError(field, message) {
+      var input = document.getElementById(field.id);
+      var errEl = document.getElementById(field.err);
+      if (message) {
+        errEl.textContent = message;
+        errEl.hidden = false;
+        input.setAttribute('aria-invalid', 'true');
+      } else {
+        errEl.textContent = '';
+        errEl.hidden = true;
+        input.removeAttribute('aria-invalid');
+      }
+      return !message;
+    }
+
+    function validate() {
+      var firstBad = null;
+      FIELDS.forEach(function (field) {
+        var input = document.getElementById(field.id);
+        if (!setError(field, field.check(input.value.trim())) && !firstBad) firstBad = input;
+      });
+      if (firstBad) firstBad.focus();
+      return firstBad === null;
+    }
+
+    // Clear a field's error the moment it becomes valid again.
+    FIELDS.forEach(function (field) {
+      var input = document.getElementById(field.id);
+      input.addEventListener('input', function () {
+        if (input.getAttribute('aria-invalid') === 'true' && !field.check(input.value.trim())) {
+          setError(field, '');
+        }
+      });
+    });
+
+    function say(message, kind) {
+      statusEl.className = 'form-status' + (kind ? ' is-' + kind : '');
+      statusEl.textContent = message;
+    }
+
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      say('', '');
+
+      if (!configured) {
+        say('This form is not connected yet — the access key is still a placeholder.', 'err');
+        return;
+      }
+      if (!validate()) return;
+
+      var payload = {};
+      new FormData(form).forEach(function (value, name) { payload[name] = value; });
+
+      var originalLabel = submitEl.textContent;
+      submitEl.disabled = true;
+      submitEl.textContent = 'Sending…';
+      say('Sending your message…', 'pending');
+
+      fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+        .then(function (res) {
+          return res.json()
+            .catch(function () { return {}; })
+            .then(function (data) { return { ok: res.ok, data: data }; });
+        })
+        .then(function (result) {
+          if (result.ok && result.data.success) {
+            form.reset();
+            say('Thanks — your message is on its way. I usually reply within a couple of days.', 'ok');
+          } else {
+            var why = (result.data && result.data.message)
+              ? result.data.message
+              : 'Something went wrong on the way out.';
+            say(why + ' Please try again, or reach me on LinkedIn.', 'err');
+          }
+        })
+        .catch(function () {
+          say('Could not reach the server — check your connection and try again, or reach me on LinkedIn.', 'err');
+        })
+        .then(function () {
+          submitEl.disabled = false;
+          submitEl.textContent = originalLabel;
+        });
+    });
+  })();
+  </script>
+
+</body>
+</html>
