@@ -29,6 +29,15 @@
 
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
 
+  <!-- Google Analytics (GA4) — replace G-XXXXXXXXXX with your measurement ID from analytics.google.com -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -838,6 +847,11 @@
 
     <!-- ═══ FOOTER ═══ -->
     <footer>
+      <div style="margin-bottom: 0.75rem;">
+        <a href="https://internship-badge.netlify.app/" target="_blank" rel="noopener" style="display:inline-block; text-decoration:none;">
+          <img src="https://internship-badge.netlify.app/badge.svg" alt="FlyRank AI Fluency Graduate Badge" style="height:38px; border-radius:6px;" onerror="this.onerror=null; this.src='https://img.shields.io/badge/FlyRank--AI--Fluency-Graduate%20Badge-2563eb?style=for-the-badge&logo=shield';">
+        </a>
+      </div>
       <p>&copy; 2026 Nguyễn Hoàng Tú · Built and deployed from a single repo.</p>
     </footer>
 
