@@ -1,30 +1,20 @@
 # Going live — the remaining steps
 
-The form is built, tested and committed. Three things stand between it and a real
-message in your inbox. Budget about five minutes.
+The form is built, tested, and the access key is in place. Two things stand between it
+and a real message in the inbox.
 
-## 1. Get a free access key (~2 min)
+## ~~1. Get a free access key~~ — done
 
-Go to **https://web3forms.com**, put your Gmail address in the "Create Access
-Key" box, and submit. They email you a key that looks like
-`a1b2c3d4-5e6f-7890-abcd-ef1234567890`. Click the verification link in that email.
+Key `88690ebb-…` is set on the `access_key` input in `docs/portfolio/index.html`.
+It is public by design: it names a mailbox, it is not a credential. Free tier is 250
+submissions a month.
 
-No account, no password, no card. The free tier is 250 submissions a month.
+If it ever needs replacing, change **only** the `value="…"` on that input. The string
+`PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE` appears once more as a constant in the page's
+JavaScript and must stay exactly as it is — it is how the page notices an unset key and
+shows the yellow "not connected yet" warning.
 
-## 2. Paste the key into the page (~30 sec)
-
-In `docs/portfolio/index.html`, find the clearly marked line:
-
-```html
-<input type="hidden" name="access_key" value="PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE">
-```
-
-Replace `PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE` with your key. **Change nothing else** —
-the same string appears once more, as a constant in the JavaScript further down, and
-that one has to stay exactly as it is. It is what the page uses to notice the key is
-still unset and show the yellow "not connected yet" warning.
-
-Commit and push.
+## ~~2. Paste the key into the page~~ — done
 
 ## 3. Merge to `main`
 
@@ -37,8 +27,8 @@ this branch is merged. Once it is, wait a minute or two and open:
 
 1. Open that URL **in a private/incognito window**, so you are testing what a stranger
    gets, not something cached.
-2. Confirm there is **no yellow warning box** above the form. If there is, the key did
-   not save.
+2. Confirm there is **no yellow warning box** above the form. If there is, the merge
+   did not carry the key through.
 3. Fill the form in as a stranger would and send it.
 4. Confirm you see the **green** "your message is on its way" line.
 5. **Check your Gmail.** Check spam too — the first message from a new sender often
@@ -65,7 +55,7 @@ Screenshot the green line and the received email. That pair is your evidence.
 
 | What you see | What it means |
 |---|---|
-| Yellow warning above the form | The key is still the placeholder. Step 2 did not save, or you did not push. |
-| Red line saying "Invalid access key" | The key is wrong, or you never clicked the verification link in step 1. |
+| Yellow warning above the form | The key reverted to the placeholder — check the merge did not drop it. |
+| Red line saying "Invalid access key" | The key was never verified — click the confirmation link Web3Forms emailed you. |
 | Red line saying "Could not reach the server" | Network or ad-blocker. Try another network with the blocker off. |
 | Green line, but no email | Check spam first. Then confirm the key belongs to the address you are checking. |

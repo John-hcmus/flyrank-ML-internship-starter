@@ -77,14 +77,19 @@ class Handler(SimpleHTTPRequestHandler):
 def build_serve_dir(tmp):
     html = SOURCE.read_text(encoding="utf-8")
 
-    # Replace ONLY the hidden input's value. The identical string also appears as
-    # the PLACEHOLDER constant in the page's JavaScript, and that must stay put.
-    configured = html.replace(
-        'value="PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE"', f'value="{FAKE_KEY}"'
-    )
-    assert configured != html, "access key placeholder not found in the page"
+    # Rewrite ONLY the hidden input's value, whatever it currently holds, so these
+    # tests behave the same before and after the real key is pasted in -- and so the
+    # real key is never sent anywhere during a test run. The identical placeholder
+    # string also appears as the PLACEHOLDER constant in the page's JavaScript, and
+    # that one must stay exactly as it is.
+    key_input = re.compile(r'(<input type="hidden" name="access_key" value=")[^"]*(")')
+
+    configured, n = key_input.subn(rf'\g<1>{FAKE_KEY}\g<2>', html)
+    assert n == 1, f"expected exactly one access_key input, found {n}"
     assert "PLACEHOLDER = 'PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE'" in configured, \
         "the JS placeholder constant must survive the swap"
+    assert FAKE_KEY in configured and "88690ebb" not in configured, \
+        "the real access key must never reach the test server"
 
     swapped = configured.replace(
         'action="https://api.web3forms.com/submit"', 'action="/submit"'
@@ -98,8 +103,13 @@ def build_serve_dir(tmp):
         ),
         encoding="utf-8",
     )
-    # Untouched original: still holds the placeholder key.
-    (tmp / "pristine.html").write_text(html, encoding="utf-8")
+    # Unconfigured variant: force the key back to the placeholder, so the
+    # "not connected yet" path stays covered once the real key is in the page.
+    unconfigured, n = key_input.subn(
+        r"\g<1>PASTE_YOUR_WEB3FORMS_ACCESS_KEY_HERE\g<2>", html
+    )
+    assert n == 1
+    (tmp / "pristine.html").write_text(unconfigured, encoding="utf-8")
 
 
 def fill(page, name, email, message):
